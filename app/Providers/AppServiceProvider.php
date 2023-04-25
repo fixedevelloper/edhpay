@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
-        if (request()->is('admin2/auth/login')) {
+        if (request()->is('admin/auth/login')) {
             $response = $this->actch();
             $data = json_decode($response->getContent(), true);
             if (!$data['active']) {

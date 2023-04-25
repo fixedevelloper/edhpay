@@ -79,6 +79,7 @@ trait ActivationClass
         $whitelist = array(
             '127.0.0.1',
             'localhost',
+            'edhpay.agensic.com',
             '::1'
         );
 
