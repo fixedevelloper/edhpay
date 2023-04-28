@@ -22,6 +22,121 @@
             <div class="col-md-6 pb-4">
                 <div class="card">
                     <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{translate('paydunya')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('paydunya'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['paydunya']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label
+                                        class="control-label">{{translate('paydunya')}} {{translate('payment')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label
+                                        style="padding-left: 10px">{{translate('inactive')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('public_key')}} </label><br>
+                                    <input type="text" class="form-control" name="dunya_secret_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['secret_key']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('public_key')}}</label><br>
+                                    <input type="text" class="form-control" name="dunya_public_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['public_key']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('principal_key')}}</label><br>
+                                    <input type="text" class="form-control" name="dunya_apikey"
+                                           value="{{env('APP_MODE')!='demo'?$config['apikey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('token')}}</label><br>
+                                    <input type="text" class="form-control" name="dunya_token"
+                                           value="{{env('APP_MODE')!='demo'?$config['token']:''}}">
+                                </div>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pb-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{translate('paystack')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('paystack'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['paystack']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label class="control-label">{{translate('paystack')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('inactive')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('publicKey')}}</label><br>
+                                    <input type="text" class="form-control" name="publicKey"
+                                           value="{{env('APP_MODE')!='demo'?$config['publicKey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{translate('secretKey')}} </label><br>
+                                    <input type="text" class="form-control" name="secretKey"
+                                           value="{{env('APP_MODE')!='demo'?$config['secretKey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{translate('paymentUrl')}} </label><br>
+                                    <input type="text" class="form-control" name="paymentUrl"
+                                           value="{{env('APP_MODE')!='demo'?$config['paymentUrl']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{translate('merchantEmail')}} </label><br>
+                                    <input type="text" class="form-control" name="merchantEmail"
+                                           value="{{env('APP_MODE')!='demo'?$config['merchantEmail']:''}}">
+                                </div>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pb-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
                         <h5 class="text-center">{{translate('sslcommerz')}}</h5>
                         @php($config=\App\CentralLogics\Helpers::get_business_settings('ssl_commerz_payment'))
                         <form
@@ -204,61 +319,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 pb-4">
-                <div class="card">
-                    <div class="card-body" style="padding: 20px">
-                        <h5 class="text-center">{{translate('paystack')}}</h5>
-                        @php($config=\App\CentralLogics\Helpers::get_business_settings('paystack'))
-                        <form
-                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['paystack']):'javascript:'}}"
-                            method="post">
-                            @csrf
-                            @if(isset($config))
-                                <div class="form-group mb-2">
-                                    <label class="control-label">{{translate('paystack')}}</label>
-                                </div>
-                                <div class="form-group mb-2 mt-2">
-                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
-                                    <label style="padding-left: 10px">{{translate('active')}}</label>
-                                    <br>
-                                </div>
-                                <div class="form-group mb-2">
-                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
-                                    <label style="padding-left: 10px">{{translate('inactive')}}</label>
-                                    <br>
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label
-                                        style="padding-left: 10px">{{translate('publicKey')}}</label><br>
-                                    <input type="text" class="form-control" name="publicKey"
-                                           value="{{env('APP_MODE')!='demo'?$config['publicKey']:''}}">
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="padding-left: 10px">{{translate('secretKey')}} </label><br>
-                                    <input type="text" class="form-control" name="secretKey"
-                                           value="{{env('APP_MODE')!='demo'?$config['secretKey']:''}}">
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="padding-left: 10px">{{translate('paymentUrl')}} </label><br>
-                                    <input type="text" class="form-control" name="paymentUrl"
-                                           value="{{env('APP_MODE')!='demo'?$config['paymentUrl']:''}}">
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="padding-left: 10px">{{translate('merchantEmail')}} </label><br>
-                                    <input type="text" class="form-control" name="merchantEmail"
-                                           value="{{env('APP_MODE')!='demo'?$config['merchantEmail']:''}}">
-                                </div>
-                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
-                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
-                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
-                            @else
-                                <button type="submit"
-                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
-                            @endif
-                        </form>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-md-6 pb-4">
                 <div class="card">
                     <div class="card-body" style="padding: 20px">

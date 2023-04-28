@@ -972,4 +972,7 @@
   'Agent/Customer/Merchant will use these methods to withdraw their money directly from admin' => 'Agent/Customer/Merchant will use these methods to withdraw their money directly from admin',
   'EDH is a secured and user-friendly digital wallet' => 'EDH is a secured and user-friendly digital wallet',
   'Welcome to EDH' => 'Welcome to EDH',
+  'paydunya' => 'Paydunya',
+  'principal_key' => 'Principal key',
+  'PAYNYA' => 'PAYNYA',
 );

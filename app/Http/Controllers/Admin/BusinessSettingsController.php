@@ -379,6 +379,17 @@ class BusinessSettingsController extends Controller
                 ])
             ]);
         }
+        else if ($name == 'paydunya') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'paydunya'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'secret_key' => $request['dunya_secret_key'],
+                    'public_key' => $request['dunya_public_key'],
+                    'apikey' => $request['dunya_apikey'],
+                    'token' => $request['dunya_token']
+                ])
+            ]);
+        }
 
         Toastr::success(translate('payment settings updated!'));
         return back();
