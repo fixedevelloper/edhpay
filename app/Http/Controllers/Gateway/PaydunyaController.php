@@ -23,7 +23,7 @@ class PaydunyaController
 
     public function __construct()
     {
-        $config = \App\CentralLogics\Helpers::get_business_settings('dunya');
+        $config = \App\CentralLogics\Helpers::get_business_settings('paydunya');
         // You can import it from your Database
         $dunya_app_key = $config['public_key']; // dunya Merchant API APP KEY
         $dunya_app_secret = $config['secret_key']; // dunya Merchant API APP SECRET
@@ -45,7 +45,7 @@ class PaydunyaController
 
     public function createOrder()
     {
-        $config = Helpers::get_business_settings('dunya');
+        $config = Helpers::get_business_settings('paydunya');
         $value = session('amount');
         $txnid=toUuidV6();
         $str = "$value|||||||||||$txnid";
