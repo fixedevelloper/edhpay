@@ -247,7 +247,7 @@ class PaydunyaController
             ], "actions" => [
                 "cancel_url" => route('payment-success'),
                 "callback_url" => route('payment-fail'),
-                "return_url" => route('paydunya_callback')
+                "return_url" => route('payment-success')
             ], "custom_data" => [
                 "order_id" => 1,
                 "trans_id" => $txnid,
