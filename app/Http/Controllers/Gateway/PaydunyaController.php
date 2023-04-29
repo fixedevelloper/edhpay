@@ -100,7 +100,7 @@ class PaydunyaController
             $order = $this->createOrder();
             $response= $this->cURL($this->base_url."checkout-invoice/create",$order);
             $this->logger->info(">>>>>++++ PAYDUNYA MAKE PAYEMENT".json_encode($response));
-            $response_decoded = json_decode($response);
+            $response_decoded = $response;
             if ($response_decoded->response_code && $response_decoded->response_code == "00") {
                Session::put('paydunya_transaction',$order['custom_data']['trans_id']);
                 return $response_decoded->response_text;
