@@ -57,7 +57,7 @@ class PaydunyaController
         $str = "$value|||||||||||$txnid";
         $hash = hash('sha512', $str);
         $data = []; //items will be here
-
+        $data['amount']=$value;
         $paydunya_items[] = [
             "name" => "merchant paid",
             "quantity" => 1,
@@ -69,9 +69,9 @@ class PaydunyaController
             "invoice" => [
                 "items" => $paydunya_items,
                 "total_amount" => $data['amount'],
-                "description" => "Paiement de " . $data['amount'] . " FCFA pour article(s) achetés sur " . get_bloginfo("name")
+                "description" => "Paiement de " . $data['amount'] . " FCFA pour article(s) achetés sur " . "paydunya"
             ], "store" => [
-                "name" => $config['dunya'],
+                "name" => "paydunya",
                 "website_url" => ""
             ], "actions" => [
                 "cancel_url" => "",
