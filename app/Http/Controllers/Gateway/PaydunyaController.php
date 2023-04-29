@@ -33,7 +33,7 @@ class PaydunyaController
         $dunya_app_secret = $config['secret_key']; // dunya Merchant API APP SECRET
         $dunya_principal_key = $config['apikey']; // dunya Merchant API USERNAME
         $dunya_token = $config['token']; // dunya Merchant API PASSWORD
-        $dunya_base_url = (env('APP_MODE') == 'live') ? 'https://app.paydunya.com/api/v1/' : 'https://app.paydunya.com/sandbox-api/v1';
+        $dunya_base_url = (env('APP_MODE') == 'live') ? 'https://app.paydunya.com/api/v1/' : 'https://app.paydunya.com/sandbox-api/v1/';
 
         $this->app_key = $dunya_app_key;
         $this->app_secret = $dunya_app_secret;
