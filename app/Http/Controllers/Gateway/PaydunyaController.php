@@ -100,6 +100,7 @@ class PaydunyaController
             $response= $this->cURL($this->base_url."checkout-invoice/create",$order);
             $this->logger->info(">>>>>++++ PAYDUNYA MAKE PAYEMENT".json_encode($response));
         }catch (\Exception $exception){
+            $this->logger->info(">>>>>++++ PAYDUNYA EXCEPTION".json_encode($exception));
             Toastr::error(translate('country_permission_denied_or_misconfiguration'));
             return back()->withErrors(['error' => 'Failed']);
         }
