@@ -116,8 +116,9 @@ class PaydunyaController
         // Request headers
         $headers = array(
             'Content-Type:application/json',
-            "authorization: $this->token",
-            "x-app-key: $this->app_key"
+            "PAYDUNYA-MASTER-KEY: $this->principal_key",
+            "PAYDUNYA-PRIVATE-KEY: $this->app_secret",
+            "PAYDUNYA-TOKEN: $this->token"
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
