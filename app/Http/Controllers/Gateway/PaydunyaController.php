@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Traits\HasUuid;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use function App\CentralLogics\translate;
@@ -99,12 +100,22 @@ class PaydunyaController
             $order = $this->createOrder();
             $response= $this->cURL($this->base_url."checkout-invoice/create",$order);
             $this->logger->info(">>>>>++++ PAYDUNYA MAKE PAYEMENT".json_encode($response));
+            $response_decoded = json_decode($response);
+            if ($response_decoded->response_code && $response_decoded->response_code == "00") {
+               Session::put('paydunya_transaction',$order['custom_data']['trans_id']);
+                return $response_decoded->response_text;
+            } else {
+                return \redirect()->route('payment-fail');
+            }
         }catch (\Exception $exception){
             $this->logger->error(">>>>>++++ PAYDUNYA EXCEPTION".$exception);
             Toastr::error(translate('country_permission_denied_or_misconfiguration'));
             return back()->withErrors(['error' => 'Failed']);
         }
         return $response;
+    }
+    public function make_response($response){
+
     }
 
     protected function cURL($url, $json)
