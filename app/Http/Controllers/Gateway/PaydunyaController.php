@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Traits\HasUuid;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use function App\CentralLogics\translate;
 use function Ramsey\Uuid\Lazy\toUuidV6;
@@ -22,8 +23,9 @@ class PaydunyaController
     private $principal_key;
     private $token;
     private $config;
+    private $logger;
 
-    public function __construct()
+    public function __construct(LoggerInterface $logger)
     {
         $config = \App\CentralLogics\Helpers::get_business_settings('paydunya');
         // You can import it from your Database
@@ -38,6 +40,7 @@ class PaydunyaController
         $this->principal_key = $dunya_principal_key;
         $this->token = $dunya_token;
         $this->base_url = $dunya_base_url;
+        $this->logger=$logger;
     }
 
     public function callback()
@@ -47,6 +50,7 @@ class PaydunyaController
 
     public function createOrder()
     {
+        $this->logger->info(">>>>>++++ PAYDUNYA CREATE ORDER");
         $config = Helpers::get_business_settings('paydunya');
         $value = session('amount');
         $txnid=Uuid::uuid4();
@@ -79,11 +83,13 @@ class PaydunyaController
                 "hash" => $hash
             ]
         ];
+        $this->logger->info(">>>>>++++ PAYDUNYA ORDER".json_encode($paydunya_args));
         return $paydunya_args;
     }
 
     public function make_payment()
     {
+        $this->logger->info(">>>>>++++ PAYDUNYA MAKE PAYEMENT");
         $currency_code = Currency::where(['currency_code' => 'EGP'])->first();
         if (isset($currency_code) == false) {
             Toastr::error(translate('paymob_supports_EGP_currency'));
@@ -92,6 +98,7 @@ class PaydunyaController
         try {
             $order = $this->createOrder();
             $response= $this->cURL($this->base_url."checkout-invoice/create",$order);
+            $this->logger->info(">>>>>++++ PAYDUNYA MAKE PAYEMENT".json_encode($response));
         }catch (\Exception $exception){
             Toastr::error(translate('country_permission_denied_or_misconfiguration'));
             return back()->withErrors(['error' => 'Failed']);
