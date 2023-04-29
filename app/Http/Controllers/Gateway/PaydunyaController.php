@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Gateway;
 use App\CentralLogics\helpers;
 use App\Models\Currency;
 use App\Models\User;
+use App\Traits\HasUuid;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use function App\CentralLogics\translate;
 use function Ramsey\Uuid\Lazy\toUuidV6;
 
@@ -47,7 +49,7 @@ class PaydunyaController
     {
         $config = Helpers::get_business_settings('paydunya');
         $value = session('amount');
-        $txnid=toUuidV6();
+        $txnid=Uuid::uuid4();
         $str = "$value|||||||||||$txnid";
         $hash = hash('sha512', $str);
         $data = []; //items will be here
