@@ -103,7 +103,8 @@ class PaydunyaController
             $response_decoded = $response;
             if ($response_decoded->response_code && $response_decoded->response_code == "00") {
                Session::put('paydunya_transaction',$order['custom_data']['trans_id']);
-                return $response_decoded->response_text;
+                return redirect($response_decoded->response_text);
+
             } else {
                 return \redirect()->route('payment-fail');
             }
