@@ -25,10 +25,10 @@ class PaydunyaController
     {
         $config = \App\CentralLogics\Helpers::get_business_settings('dunya');
         // You can import it from your Database
-        $dunya_app_key = $config['api_key']; // dunya Merchant API APP KEY
-        $dunya_app_secret = $config['api_secret']; // dunya Merchant API APP SECRET
-        $dunya_principal_key = $config['username']; // dunya Merchant API USERNAME
-        $dunya_token = $config['password']; // dunya Merchant API PASSWORD
+        $dunya_app_key = $config['public_key']; // dunya Merchant API APP KEY
+        $dunya_app_secret = $config['secret_key']; // dunya Merchant API APP SECRET
+        $dunya_principal_key = $config['apikey']; // dunya Merchant API USERNAME
+        $dunya_token = $config['token']; // dunya Merchant API PASSWORD
         $dunya_base_url = (env('APP_MODE') == 'live') ? 'https://app.paydunya.com/api/v1/' : 'https://app.paydunya.com/sandbox-api/v1';
 
         $this->app_key = $dunya_app_key;

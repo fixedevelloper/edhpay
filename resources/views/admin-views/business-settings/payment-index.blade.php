@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="form-group mb-2">
                                     <label
-                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('public_key')}} </label><br>
+                                        style="padding-left: 10px">{{translate('paydunya')}} {{translate('secret_key')}} </label><br>
                                     <input type="text" class="form-control" name="dunya_secret_key"
                                            value="{{env('APP_MODE')!='demo'?$config['secret_key']:''}}">
                                 </div>
