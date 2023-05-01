@@ -48,7 +48,8 @@ class PaydunyaController
     public function callback()
     {
         try {
-            $this->logger->info(">>>>>++++ PAYDUNYA CALLBACK" . json_encode($_POST['data']));
+            if ($_POST['data']){
+                $this->logger->info(">>>>>++++ PAYDUNYA CALLBACK" . json_encode($_POST['data']));
                 $status = $_POST['data']['status'];
                 if ($status == 'completed') {
                     $transactionID = $_POST['data']['custom_data']['trans_id'];
@@ -185,7 +186,7 @@ class PaydunyaController
                     return \redirect()->route('payment-fail');
 
                 }
-
+            }
         } catch (Exception $e) {
             die();
         }
