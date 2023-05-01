@@ -48,7 +48,7 @@ class PaydunyaController
     public function callback()
     {
         try {
-            if (isset($_POST['data'])){
+           // if (isset($_POST['data'])){
                 $this->logger->info(">>>>>++++ PAYDUNYA CALLBACK" . json_encode($_POST['data']));
                 $status = $_POST['data']['status'];
                 if ($status == 'completed') {
@@ -186,7 +186,7 @@ class PaydunyaController
                     return \redirect()->route('payment-fail');
 
                 }
-            }
+         //   }
         } catch (Exception $e) {
             die();
         }
