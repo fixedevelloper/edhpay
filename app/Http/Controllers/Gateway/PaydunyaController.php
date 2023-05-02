@@ -11,6 +11,7 @@ use App\Models\Currency;
 use App\Models\EMoney;
 use Brian2694\Toastr\Facades\Toastr;
 use http\Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use KingFlamez\Rave\Facades\Rave as Flutterwave;
@@ -46,7 +47,7 @@ class PaydunyaController extends Controller
         $this->logger = $logger;
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
         try {
            // if (isset($_POST['data'])){
@@ -68,15 +69,15 @@ class PaydunyaController extends Controller
                     DB::beginTransaction();
                     $data = [];
                     $data['from_user_id'] = Helpers::get_admin_id(); //since admin
-                    $data['to_user_id'] = session('user_id');
+                    $data['to_user_id'] = $_POST['data']['custom_data']['to_user_id'];
 
                     try {
                         //customer transaction
                         $data['user_id'] = $data['to_user_id'];
                         $data['type'] = 'credit';
                         $data['transaction_type'] = ADD_MONEY;
-                        $data['ref_trans_id'] = null;
-                        $data['amount'] = session('amount');
+                        $data['ref_trans_id'] = $transactionID;
+                        $data['amount'] = $_POST['data']['invoice']['total_amount'];
                         $this->logger->info(json_encode($data));
                         $customer_transaction = Helpers::make_transaction($data);
                         if ($customer_transaction != null) {
@@ -158,8 +159,8 @@ class PaydunyaController extends Controller
                     //fund record for failed
                     try {
                         $data = [];
-                        $data['user_id'] = session('user_id');
-                        $data['amount'] = session('amount');
+                        $data['user_id'] = $_POST['data']['custom_data']['to_user_id'];
+                        $data['amount'] = $_POST['data']['invoice']['total_amount'];
                         $data['payment_method'] = 'paydunya';
                         $data['status'] = 'cancel';
                         Helpers::fund_add($data);
@@ -174,8 +175,8 @@ class PaydunyaController extends Controller
                     //fund record for failed
                     try {
                         $data = [];
-                        $data['user_id'] = session('user_id');
-                        $data['amount'] = session('amount');
+                        $data['user_id'] = $_POST['data']['custom_data']['to_user_id'];
+                        $data['amount'] = $_POST['data']['invoice']['total_amount'];
                         $data['payment_method'] = 'paydunya';
                         $data['status'] = 'failed';
                         Helpers::fund_add($data);
@@ -253,6 +254,7 @@ class PaydunyaController extends Controller
             ], "custom_data" => [
                 "order_id" => 1,
                 "trans_id" => $txnid,
+                "to_user_id"=>session('user_id'),
                 "hash" => $hash
             ]
         ];
