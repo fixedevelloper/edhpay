@@ -122,7 +122,7 @@ Route::post('/flutterwave-pay',[FlutterwaveController::class, 'initialize'])->na
 // The callback url after a payment
 Route::get('/rave/callback', [FlutterwaveController::class, 'callback'])->name('flutterwave_callback');
 //PAYpaydunya
-Route::match(['get', 'post'],'/paydunya/callback', [PaydunyaController::class, 'callback'])->name('paydunya_callback');
+Route::post('/paydunya/callback', [PaydunyaController::class, 'callback'])->name('paydunya_callback');
 Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::class, 'make_payment'])->name('paydunya_make_payment');
 
 //Route::get('add-currency', function () {

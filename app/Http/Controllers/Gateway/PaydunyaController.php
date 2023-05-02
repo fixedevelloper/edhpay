@@ -115,7 +115,7 @@ class PaydunyaController
                                 $data = [];
                                 $data['user_id'] = session('user_id');
                                 $data['amount'] = session('amount');
-                                $data['payment_method'] = 'stripe';
+                                $data['payment_method'] = 'paydunya';
                                 $data['status'] = 'failed';
                                 Helpers::fund_add($data);
 
@@ -131,7 +131,7 @@ class PaydunyaController
                                 $data = [];
                                 $data['user_id'] = session('user_id');
                                 $data['amount'] = session('amount');
-                                $data['payment_method'] = 'stripe';
+                                $data['payment_method'] = 'paydunya';
                                 $data['status'] = 'success';
                                 Helpers::fund_add($data);
 
@@ -159,7 +159,7 @@ class PaydunyaController
                         $data = [];
                         $data['user_id'] = session('user_id');
                         $data['amount'] = session('amount');
-                        $data['payment_method'] = 'flutterwave';
+                        $data['payment_method'] = 'paydunya';
                         $data['status'] = 'cancel';
                         Helpers::fund_add($data);
 
@@ -175,7 +175,7 @@ class PaydunyaController
                         $data = [];
                         $data['user_id'] = session('user_id');
                         $data['amount'] = session('amount');
-                        $data['payment_method'] = 'flutterwave';
+                        $data['payment_method'] = 'paydunya';
                         $data['status'] = 'failed';
                         Helpers::fund_add($data);
 
@@ -247,7 +247,7 @@ class PaydunyaController
                 "website_url" => "https://edhpay.agensic.com"
             ], "actions" => [
                 "cancel_url" => route('payment-fail'),
-                "callback_url" => route('paydunya_callback'),
+                "callback_url" => route('paydunya_callback').'?'.$txnid,
                 "return_url" => route('payment-success')
             ], "custom_data" => [
                 "order_id" => 1,
