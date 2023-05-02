@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Gateway;
 
 use App\CentralLogics\helpers;
 use App\Exceptions\TransactionFailedException;
+use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\EMoney;
 use Brian2694\Toastr\Facades\Toastr;
@@ -17,7 +18,7 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use function App\CentralLogics\translate;
 
-class PaydunyaController
+class PaydunyaController extends Controller
 {
     private $base_url;
     private $app_key;
