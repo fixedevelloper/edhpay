@@ -76,7 +76,7 @@ class PaydunyaController
                         $data['transaction_type'] = ADD_MONEY;
                         $data['ref_trans_id'] = null;
                         $data['amount'] = session('amount');
-
+                        $this->logger->info(json_encode($data));
                         $customer_transaction = Helpers::make_transaction($data);
                         if ($customer_transaction != null) {
                             //admin transaction
