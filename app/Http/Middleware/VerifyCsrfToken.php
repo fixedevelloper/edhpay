@@ -24,6 +24,6 @@ class VerifyCsrfToken extends Middleware
         'paypal-status',
         'paywithrazorpay',
         'payment-razor',
-        'paydunya'
+        'paydunya/*'
     ];
 }
