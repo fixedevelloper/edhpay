@@ -247,7 +247,7 @@ class PaydunyaController
                 "website_url" => "https://edhpay.agensic.com"
             ], "actions" => [
                 "cancel_url" => route('payment-fail'),
-                "callback_url" => route('paydunya_callback').'?'.$txnid,
+                "callback_url" => route('paydunya_callback').'?txnid='.$txnid,
                 "return_url" => route('payment-success')
             ], "custom_data" => [
                 "order_id" => 1,
