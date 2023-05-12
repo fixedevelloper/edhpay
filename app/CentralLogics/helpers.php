@@ -441,6 +441,14 @@ class helpers
         $charge = ((float)$amount * $charge_in_percent) / 100;
         return $charge;
     }
+    public static function get_reverse_charge($amount)
+    {
+        if ($amount <= 0) return $amount;
+        $charge_in_percent = (float)self::get_business_settings('cashout_charge_percent');
+        $charge = ((float)$amount * 100) / $charge_in_percent;
+        $amout_s=(100*(float)$amount)/($charge_in_percent+100);
+        return $amout_s;
+    }
 
     public static function get_sendmoney_charge()
     {

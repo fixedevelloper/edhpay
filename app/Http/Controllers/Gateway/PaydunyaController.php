@@ -60,7 +60,7 @@ class PaydunyaController extends Controller
                     //add money charge
                     $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
                     if(isset($add_money_charge) && $add_money_charge > 0) {
-                        $add_money_charge = (session('amount') * $add_money_charge)/100;
+                        $add_money_charge = ($_POST['data']['invoice']['total_amount'] * $add_money_charge)/100;
                     } else {
                         $add_money_charge = 0;
                     }

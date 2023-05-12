@@ -107,9 +107,10 @@
                                     </td>
                                     <td>
                                         @if($banner['image']!=null)
+
                                             <img style="height: 75px" class="shadow-image"
-                                                 src="{{asset('storage/app/public/banner')}}/{{$banner['image']}}"
-                                                 onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                                 src="{{asset('storage/banner')}}/{{$banner['image']}}"
+                                                 >
                                         @else
                                             <label class="badge badge-soft-warning">{{translate('No Image')}}</label>
                                         @endif

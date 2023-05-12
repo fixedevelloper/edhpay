@@ -562,7 +562,7 @@ class TransactionController extends Controller
         ]);
 
         return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);*/
-
+        $amount_sans_charge=Helpers::get_reverse_charge($request->amount);
         try {
             DB::beginTransaction();
 
