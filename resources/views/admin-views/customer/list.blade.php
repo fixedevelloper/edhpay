@@ -73,7 +73,7 @@
                                 <img class="rounded-circle" height="60px" width="60px" style="cursor: pointer"
                                      onclick="location.href='{{route('admin.customer.view',[$customer['id']])}}'"
                                      onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
-                                     src="{{asset('storage/app/public/customer')}}/{{$customer['image']}}">
+                                     src="{{asset('storage/customer')}}/{{$customer['image']}}">
                             </td>
                             <td>
                                 <a class="d-block font-size-sm text-body"

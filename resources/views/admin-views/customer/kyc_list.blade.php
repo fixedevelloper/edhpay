@@ -77,7 +77,7 @@
                                 <img class="rounded-circle" height="60px" width="60px" style="cursor: pointer"
                                      onclick="location.href='{{route('admin.customer.view',[$customer['id']])}}'"
                                      onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
-                                     src="{{asset('storage/app/public/customer')}}/{{$customer['image']}}">
+                                     src="{{asset('storage/customer')}}/{{$customer['image']}}">
                             </td>
                             <td>
                                 <a class="d-block font-size-sm text-body"
@@ -112,7 +112,7 @@
                             <td>
                                 <div data-toggle="" data-placement="top" title="{{translate('click for bigger view')}}">
                                     @foreach(json_decode($customer['identification_image'], true) as $identification_image)
-                                        @php($image_full_path = asset('storage/app/public/user/identity'). '/' .$identification_image)
+                                        @php($image_full_path = asset('storage/user/identity'). '/' .$identification_image)
                                         <img class="" height="60px" width="120px" style="cursor: pointer; border-radius: 3px"
                                              onerror="this.src='{{asset('assets/admin/img/900x400/img1.jpg')}}'"
                                              src="{{$image_full_path}}"

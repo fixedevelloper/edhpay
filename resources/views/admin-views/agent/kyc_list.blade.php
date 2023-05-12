@@ -77,7 +77,7 @@
                                 <img class="rounded-circle" height="60px" width="60px" style="cursor: pointer"
                                      onclick="location.href='{{route('admin.agent.view',[$agent['id']])}}'"
                                      onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
-                                     src="{{asset('storage/app/public/agent')}}/{{$agent['image']}}">
+                                     src="{{asset('storage/agent')}}/{{$agent['image']}}">
                             </td>
                             <td>
                                 <a class="d-block font-size-sm text-body"
@@ -114,8 +114,8 @@
                                     @foreach(json_decode($agent['identification_image'], true) as $identification_image)
                                         <img class="" height="60px" width="120px" style="cursor: pointer; border-radius: 3px"
                                              onerror="this.src='{{asset('assets/admin/img/900x400/img1.jpg')}}'"
-                                             src="{{asset('storage/app/public/user/identity')}}/{{$identification_image}}"
-                                             onclick="show_modal('{{asset('storage/app/public/user/identity')}}/{{$identification_image}}')">
+                                             src="{{asset('storage/user/identity')}}/{{$identification_image}}"
+                                             onclick="show_modal('{{asset('storage/user/identity')}}/{{$identification_image}}')">
                                     @endforeach
                                 </div>
                             </td>
