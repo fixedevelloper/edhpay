@@ -120,7 +120,7 @@
                                         @if($notification['image']!=null)
                                             <img style="height: 75px" class="shadow-image"
                                                  onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'"
-                                                 src="{{asset('storage/app/public/notification')}}/{{$notification['image']}}">
+                                                 src="{{asset('storage/notification')}}/{{$notification['image']}}">
                                         @else
                                             <label class="badge badge-light text-muted">{{translate('No image available')}}</label>
                                         @endif

@@ -107,7 +107,7 @@
                                     <td>
                                         <img width="auto" height="60" class="shadow-image"
                                              onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
-                                             src="{{asset('storage/app/public/purpose')}}/{{$purpose['logo']}}">
+                                             src="{{asset('storage/purpose')}}/{{$purpose['logo']}}">
                                     </td>
                                     <td>
                                         <a href="{{route('admin.purpose.edit', ['id'=>$purpose['id']])}}"
