@@ -50,7 +50,7 @@
                         <div class="text-center mt-3">
                             <img style="width: 30%; height: 20%;border: 1px solid; border-radius: 10px;" id="viewer"
                                  onerror="this.src='{{asset('assets/admin/img/900x400/img1.jpg')}}'"
-                                 src="{{asset('storage/app/public/notification')}}/{{$notification['image']}}" alt="image"/>
+                                 src="{{asset('storage/notification')}}/{{$notification['image']}}" alt="image"/>
                         </div>
                     </div>
 
