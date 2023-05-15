@@ -67,7 +67,7 @@ class PayCiController
             'amount' => $amount,
             'beneficiary' => $methods['nom_et_prenom'],
             'description' => "Collet wetransfertcash",
-            'method' => $methods['name'],
+            'method' => "Mobile_money",
             'id_transaction' => $withdrawRequest->id,
             'callback_url' => $notifyurl,
         ];
