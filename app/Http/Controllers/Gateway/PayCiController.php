@@ -105,7 +105,7 @@ class PayCiController
         ];
         $data = json_encode($dataNeste);
 
-        $response = $this->cURL($endpoint, $data);
+        $response = $this->cURLAuth($endpoint, $data);
         logger($response);
         if ($response=="Authentification réussie"){
             return true;
@@ -143,7 +143,31 @@ class PayCiController
         // Request headers
         $headers = array(
             'Content-Type:application/json',
+            'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $this->tokencinet,
+        );
+        // Return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // Close curl resource to free up system resources
+        curl_close($ch);
+        return json_decode($output);
+    }
+    protected function cURLAuth($url, $json)
+    {
+        // Create curl resource
+        $ch = curl_init($this->base_url.'/'.$url);
+
+        // Request headers
+        $headers = array(
+            'Content-Type:application/json',
+            'Accept' => 'application/json',
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
