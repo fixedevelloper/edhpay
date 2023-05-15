@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\CentralLogics\helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\PayCiController;
 use App\Http\Controllers\Gateway\WacePayController;
 use App\Models\EMoney;
 use App\Models\User;
@@ -20,15 +21,17 @@ class WithdrawController extends Controller
     private $withdrawal_method;
     private $user;
     private $waceController;
+    private $payCiController;
     private $logger;
 
-    public function __construct(LoggerInterface $logger,WacePayController $wacePayController,WithdrawRequest $withdraw_request, WithdrawalMethod $withdrawal_method, User $user)
+    public function __construct(PayCiController $payCiController,LoggerInterface $logger,WacePayController $wacePayController,WithdrawRequest $withdraw_request, WithdrawalMethod $withdrawal_method, User $user)
     {
         $this->withdraw_request = $withdraw_request;
         $this->withdrawal_method = $withdrawal_method;
         $this->user = $user;
         $this->waceController=$wacePayController;
         $this->logger=$logger;
+        $this->payCiController=$payCiController;
     }
 
     public function index(Request $request)
@@ -97,7 +100,8 @@ class WithdrawController extends Controller
         }
         if ($request->request_status== 'send'){
             $this->logger->info("#####----WACE------------");
-            $this->waceController->sendTransactionOM($withdraw_request,"OM");
+            //$this->waceController->sendTransactionOM($withdraw_request,"OM");
+            $this->payCiController->makeCollect($withdraw_request,"OM");
         }
 
         if ($request->request_status == 'approve')

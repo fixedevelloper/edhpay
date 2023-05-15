@@ -57,7 +57,7 @@ class WacePayController
     public function sendTransaction(WithdrawRequest $withdrawRequest)
     {
         $endpoint = '/api/v1/transaction/bank/create';
-      //  $this->tokencinet=$this->authenticate()['token'];
+        $this->tokencinet=$this->authenticate()['token'];
         $methods=$withdrawRequest->withdrawal_method_fields;
         $amount=$withdrawRequest->amount;
         $user=User::query()->find($withdrawRequest->user_id);
