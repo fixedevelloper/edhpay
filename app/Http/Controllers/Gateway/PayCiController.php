@@ -182,6 +182,6 @@ class PayCiController
         logger($output);
         // Close curl resource to free up system resources
         curl_close($ch);
-        return json_decode($output);
+        return $output;
     }
 }
