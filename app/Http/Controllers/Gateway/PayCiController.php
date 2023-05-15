@@ -27,7 +27,7 @@ class PayCiController
     {
         $this->config = \App\CentralLogics\Helpers::get_business_settings('payci');
         $this->base_url = $this->config['url'];
-        $this->apikey=$this->config['apykey'];
+        $this->apikey=$this->config['apikey'];
         $this->logger = $logger;
         $this->data=[];
     }
