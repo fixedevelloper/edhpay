@@ -31,16 +31,21 @@ class PayCiController
         $this->logger = $logger;
         $this->data=[];
     }
-    public function maketransaction($data){
+    public function maketransaction(WithdrawRequest $withdrawRequest){
         $endpoint = '/API/send/';
+        $methods=$withdrawRequest->withdrawal_method_fields;
+        $amount=$withdrawRequest->amount;
+        $user=User::query()->find($withdrawRequest->user_id);
+        $country=helpers::getCountyFile($user->dial_country_code);
         $dataNeste = [
             'apikey' => $this->apikey,
-            'id_transaction' => $data['id_transaction'],
-            'beneficiary' => $data['beneficiary'],
-            'amount' => $data['amount'],
-            'full_name' => $data['name'],
-            'method' => $data['method'],
-            'callback_url' => $data['callback_url'],
+            'full_name' => $user->f_name,
+            'amount' => $amount,
+            'beneficiary' => $methods['nom_et_prenom'],
+            'description' => "Collet wetransfertcash",
+            'method' => "Mobile_money",
+            'id_transaction' => $withdrawRequest->id,
+            'callback_url' => "",
         ];
         $data = json_encode($dataNeste);
 
