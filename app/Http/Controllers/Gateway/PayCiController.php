@@ -161,6 +161,7 @@ class PayCiController
     }
     protected function cURLAuth($url, $json)
     {
+        logger($this->base_url);
         // Create curl resource
         $ch = curl_init($this->base_url.'/'.$url);
 
