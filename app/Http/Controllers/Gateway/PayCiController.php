@@ -50,7 +50,7 @@ class PayCiController
         $data = json_encode($dataNeste);
 
         if ($this->makeAuth()==true){
-            $res = $this->cURL($endpoint, $data);
+            $res = $this->cURL($endpoint, $dataNeste);
             $response = $res;
         }else{
             $response = [
