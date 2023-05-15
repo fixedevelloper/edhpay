@@ -179,7 +179,7 @@ class PayCiController
 
         // $output contains the output string
         $output = curl_exec($ch);
-
+        logger($output);
         // Close curl resource to free up system resources
         curl_close($ch);
         return json_decode($output);
