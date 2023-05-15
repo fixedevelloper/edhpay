@@ -105,14 +105,8 @@ class PayCiController
         ];
         $data = json_encode($dataNeste);
 
-        $options = [
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ],
-            'body' => $data,
-        ];
         $response = $this->cURL($endpoint, $data);
+        logger($response);
         if ($response=="Authentification réussie"){
             return true;
         }else{
