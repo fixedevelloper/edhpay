@@ -138,7 +138,8 @@ class PayCiController
     protected function cURL($url, $json)
     {
         // Create curl resource
-        $ch = curl_init($this->base_url.'/'.$url);
+        $ul=$this->base_url.'/'.$url;
+        $ch = curl_init($ul);
 
         // Request headers
         $headers = array(
@@ -161,7 +162,7 @@ class PayCiController
     }
     protected function cURLAuth($url, $json)
     {
-        logger($this->base_url);
+        logger($this->base_url.'/'.$url);
         // Create curl resource
         $ch = curl_init($this->base_url.'/'.$url);
 
