@@ -22,6 +22,108 @@
             <div class="col-md-6 pb-4">
                 <div class="card">
                     <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{translate('wacepay')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('wacepay'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['wacepay']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label
+                                        class="control-label">{{translate('wacepay')}} {{translate('payment')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label
+                                        style="padding-left: 10px">{{translate('inactive')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('wacepay')}} {{translate('username')}} </label><br>
+                                    <input type="text" class="form-control" name="dunya_secret_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['username']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('wacepay')}} {{translate('password')}}</label><br>
+                                    <input type="text" class="form-control" name="dunya_public_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['password']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('wacepay')}} {{translate('url')}}</label><br>
+                                    <input type="text" class="form-control" name="dunya_apikey"
+                                           value="{{env('APP_MODE')!='demo'?$config['url']:''}}">
+                                </div>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pb-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{translate('payci')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('payci'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['wacepay']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label
+                                        class="control-label">{{translate('payci')}} {{translate('payment')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label
+                                        style="padding-left: 10px">{{translate('inactive')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('payci')}} {{translate('apikey')}} </label><br>
+                                    <input type="text" class="form-control" name="payci_apikey"
+                                           value="{{env('APP_MODE')!='demo'?$config['apikey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('apikey')}} {{translate('url')}}</label><br>
+                                    <input type="text" class="form-control" name="apikey_url"
+                                           value="{{env('APP_MODE')!='demo'?$config['url']:''}}">
+                                </div>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pb-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
                         <h5 class="text-center">{{translate('paydunya')}}</h5>
                         @php($config=\App\CentralLogics\Helpers::get_business_settings('paydunya'))
                         <form

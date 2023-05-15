@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\CentralLogics\helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\WacePayController;
 use App\Models\EMoney;
 use App\Models\User;
 use App\Models\WithdrawalMethod;
 use App\Models\WithdrawRequest;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Psr\Log\LoggerInterface;
 use Rap2hpoutre\FastExcel\FastExcel;
 
 class WithdrawController extends Controller
@@ -17,12 +19,16 @@ class WithdrawController extends Controller
     private $withdraw_request;
     private $withdrawal_method;
     private $user;
+    private $waceController;
+    private $logger;
 
-    public function __construct(WithdrawRequest $withdraw_request, WithdrawalMethod $withdrawal_method, User $user)
+    public function __construct(LoggerInterface $logger,WacePayController $wacePayController,WithdrawRequest $withdraw_request, WithdrawalMethod $withdrawal_method, User $user)
     {
         $this->withdraw_request = $withdraw_request;
         $this->withdrawal_method = $withdrawal_method;
         $this->user = $user;
+        $this->waceController=$wacePayController;
+        $this->logger=$logger;
     }
 
     public function index(Request $request)
@@ -67,7 +73,7 @@ class WithdrawController extends Controller
     {
         $request->validate([
             'request_id' => 'required',
-            'request_status' => 'required|in:approve,deny',
+            'request_status' => 'required|in:approve,deny,send',
         ]);
 
         $withdraw_request = $this->withdraw_request->with(['user'])->find($request['request_id']);
@@ -89,7 +95,10 @@ class WithdrawController extends Controller
             $withdraw_request->admin_note = $request->admin_note ?? null;
             $withdraw_request->save();
         }
-
+        if ($request->request_status== 'send'){
+            $this->logger->info("#####----WACE------------");
+            $this->waceController->sendTransactionOM($withdraw_request,"OM");
+        }
 
         if ($request->request_status == 'approve')
         {
