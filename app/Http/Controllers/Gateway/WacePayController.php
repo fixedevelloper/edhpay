@@ -42,6 +42,7 @@ class WacePayController
 
         $response = $this->cURL($this->base_url . $endpoint, $arrayJson);
         if ($response->status === 2000) {
+            $this->tokencinet=$response->access_token;
             return [
                 "status" => false,
                 "token" => $response->access_token,
@@ -109,8 +110,9 @@ class WacePayController
         $methods=$withdrawRequest->withdrawal_method_fields;
         $amount=$withdrawRequest->amount;
         $user=User::query()->find($withdrawRequest->user_id);
+        $country=helpers::getCountyFile($user->dial_country_code);
         $this->logger->info("#####----WACE------------");
-        $this->logger->info($methods);
+        $this->logger->info($country->code);
         if (!is_null($this->tokencinet)){
             $customerReponse=$this->getCreateSender($user);
             if ($customerReponse["status"] !==2000){
@@ -130,7 +132,7 @@ class WacePayController
                 "beneficiaryCode" => $beneficiaryReponse['sender']['Code'],
                 "sendingCurrency" => "XAF",
                 "mobileReceiveNumber" => $methods['telephone'],
-                "fromCountry" => $user->dial_country_code,
+                "fromCountry" => $country->code,
                 "originFund" => "Salary",
                 "reason" => "Family",
                 "relation" => "Brother"
@@ -229,25 +231,26 @@ class WacePayController
     public function getCreateSender($user)
     {
         $endpoint = '/api/v1/sender/create';
+        $country=helpers::getCountyFile($user->dial_country_code);
         $customer=$user;
         $sender = [
             "firstName" => $customer->f_name,
             "lastName" => $customer->l_name,
-            "address" => $this->townRepository->findOneBy(['country'=>$customer->getCountry()])->getLibelle(),
+            "address" => "douala",
             "phone" => $customer->phone,
-            "country" => $customer->getCountry()->getCodeString(),
-            "city" => $this->townRepository->findOneBy(['country'=>$customer->getCountry()])->getLibelle(),
+            "country" => $country->code,
+            "city" => "Douala",
             "gender" => "M",
             "civility" => "Maried",
             "idNumber" => $customer->identification_number,
             "idType" => "PP",
             "occupation" => "Develloper",
             "state" => "",
-            "nationality" => $customer->getCountry()->getLibelle(),
+            "nationality" => $country->name,
             "comment" => "new sender",
             "zipcode" => "78952",
             "dateOfBirth" => "1990-03-03",
-            "dateExpireId" => $customer->getExpireddatepiece()->format("Y-m-d"),
+            "dateExpireId" => "2029-02-03",
             "pep" => false,
             "updateIfExist" => true
         ];
@@ -291,7 +294,7 @@ class WacePayController
     }
     public function validateTransaction($reference)
     {
-        $token=$this->authenticate()['token'];
+        $this->tokencinet=$this->authenticate()['token'];
         $endpoint = '/api/v1/transaction/confirm';
         $body=[
             "reference"=>$reference
@@ -304,18 +307,18 @@ class WacePayController
             ],
             'body' => json_encode($body),
         ];
-        $res = $this->client->post($endpoint, $options);
+        $res = $this->cURL($endpoint, json_encode($body));
         return json_decode($res->getBody(), true);
     }
     protected function cURL($url, $json)
     {
-
         // Create curl resource
         $ch = curl_init($url);
 
         // Request headers
         $headers = array(
             'Content-Type:application/json',
+            'Authorization' => 'Bearer ' . $this->tokencinet,
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

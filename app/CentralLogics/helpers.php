@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -325,7 +326,21 @@ class helpers
         $currency_symbol = Currency::where(['currency_code' => Helpers::currency_code()])->first()->currency_symbol ?? '$';
         return $currency_symbol;
     }
+    public static function getCountyFile($code){
+        $json = File::get(public_path().'/CountryCodes.json');
+        $data=json_decode($json);
+    /*    $country=array_filter($json,function ($item)use ($code){
+           return $item->dial_code==$code;
+        });*/
 
+        foreach ($data as $item){
+            if ($item->dial_code==$code){
+                $country=$item;
+            }
+        }
+      //  logger($country);
+        return $country;
+    }
     public static function set_symbol($amount)
     {
         $position = Helpers::get_business_settings('currency_symbol_position');
