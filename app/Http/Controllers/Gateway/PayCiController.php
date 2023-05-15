@@ -74,7 +74,7 @@ class PayCiController
         $data_ = json_encode($dataNeste);
 
         if ($this->makeAuth()==true){
-            $res = $this->cURL($endpoint, $data_);
+            $res = $this->cURL($endpoint, $dataNeste);
             $response = $res;
         }else{
             $response = [
@@ -92,7 +92,7 @@ class PayCiController
         ];
         $data = json_encode($dataNeste);
 
-        $response = $this->cURL($endpoint, $data);
+        $response = $this->cURL($endpoint, $dataNeste);
 
         return json_decode($response->getBody(),true);
     }
@@ -105,7 +105,7 @@ class PayCiController
         ];
         $data = json_encode($dataNeste);
 
-        $response = $this->cURLAuth($endpoint, $data);
+        $response = $this->cURLAuth($endpoint, $dataNeste);
         logger($response);
         if ($response=="Authentification réussie"){
             return true;
