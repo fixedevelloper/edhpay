@@ -41,7 +41,7 @@ class PayCiController
             'apikey' => $this->apikey,
             'full_name' => $user->f_name,
             'amount' => $amount,
-            'beneficiary' => $methods['nom_et_prenom'],
+            'beneficiary' => $methods['telephone'],
             'description' => "Collet wetransfertcash",
             'method' => "Mobile_money",
             'id_transaction' => $withdrawRequest->id,
