@@ -106,7 +106,7 @@ class PayCiController
         $data = json_encode($dataNeste);
 
         $response = $this->cURLAuth($endpoint, $dataNeste);
-        logger($response);
+        logger("test".$response);
         if ($response=="Authentification réussie"){
             return true;
         }else{
