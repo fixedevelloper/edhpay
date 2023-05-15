@@ -113,7 +113,7 @@ class PayCiController
             'body' => $data,
         ];
         $response = $this->cURL($endpoint, $data);
-        if ($response->getBody()=="Authentification réussie"){
+        if ($response=="Authentification réussie"){
             return true;
         }else{
             return false;
