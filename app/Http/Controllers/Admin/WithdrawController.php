@@ -100,9 +100,15 @@ class WithdrawController extends Controller
         }
         if ($request->request_status== 'send'){
             $this->logger->info("#####----WACE------------");
+            if ($request->request_status=="wacepay"){
+                $this->waceController->sendTransactionOM($withdraw_request,"OM");
+            }
+            if ($request->request_status=="payci"){
+                $res=  $this->payCiController->maketransaction($withdraw_request);
+                logger(json_encode($res));
+            }
             //$this->waceController->sendTransactionOM($withdraw_request,"OM");
-          $res=  $this->payCiController->maketransaction($withdraw_request);
-          logger(json_encode($res));
+
         }
 
         if ($request->request_status == 'approve')

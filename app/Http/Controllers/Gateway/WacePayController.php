@@ -288,7 +288,6 @@ class WacePayController
         $this->logger->info(json_encode($beneficiary));
         $res = $this->cURL($endpoint, json_encode($beneficiary));
         $this->logger->info("##############ResponseBeneficiary################");
-        $this->logger->info($res->getBody());
 
         return $res;
     }
@@ -313,7 +312,7 @@ class WacePayController
     protected function cURL($url, $json)
     {
         // Create curl resource
-        $ch = curl_init($url);
+        $ch = curl_init($this->base_url.'/'.$url);
 
         // Request headers
         $headers = array(
@@ -323,7 +322,7 @@ class WacePayController
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // $output contains the output string

@@ -137,7 +137,17 @@
                                     <td>
                                         @if( $withdraw_request->request_status == 'pending' )
                                             <div>
-                                                <a href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send']) }}" class="btn btn-success btn-sm"> {{translate('Send')}}</a>
+
+                                                <div class="btn-group dropdown">
+                                                    <button type="button" class="btn btn-success btn-sm">Envoyer</button>
+                                                    <button type="button" class="btn btn-success btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="mdi mdi-chevron-down"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'wacepay']) }}"> {{translate('Wace pay')}}</a>
+                                                        <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'payci']) }}"> {{translate('Payci')}}</a>
+                                                    </div>
+                                                </div>
                                                 <a href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'approve']) }}" class="btn btn-primary btn-sm"> {{translate('Approve')}}</a>
                                                 <a href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'deny']) }}" class="btn btn-warning btn-sm"> {{translate('Deny')}}</a>
                                             </div>

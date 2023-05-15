@@ -985,4 +985,5 @@
   'wacepay' => 'Wacepay',
   'apikey' => 'Apikey',
   'nom_et_prenom' => 'Nom et prenom',
+  'Payci' => 'Payci',
 );
