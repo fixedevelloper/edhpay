@@ -102,6 +102,7 @@ class WithdrawController extends Controller
             $this->logger->info("#####----WACE------------");
             if ($request->request_method=="wacepay"){
              $res=  $this->waceController->sendTransactionOM($withdraw_request,"OM");
+                logger(json_encode($res));
              $this->waceController->validateTransaction($res['transaction']['reference']);
             }
             if ($request->request_method=="payci"){
