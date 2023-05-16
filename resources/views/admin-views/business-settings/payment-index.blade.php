@@ -47,19 +47,19 @@
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('wacepay')}} {{translate('username')}} </label><br>
-                                    <input type="text" class="form-control" name="dunya_secret_key"
+                                    <input type="text" class="form-control" name="wacepay_username"
                                            value="{{env('APP_MODE')!='demo'?$config['username']:''}}">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('wacepay')}} {{translate('password')}}</label><br>
-                                    <input type="text" class="form-control" name="dunya_public_key"
+                                    <input type="text" class="form-control" name="wacepay_password"
                                            value="{{env('APP_MODE')!='demo'?$config['password']:''}}">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('wacepay')}} {{translate('url')}}</label><br>
-                                    <input type="text" class="form-control" name="dunya_apikey"
+                                    <input type="text" class="form-control" name="wacepay_url"
                                            value="{{env('APP_MODE')!='demo'?$config['url']:''}}">
                                 </div>
                                 <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"

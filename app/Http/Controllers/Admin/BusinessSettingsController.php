@@ -390,6 +390,17 @@ class BusinessSettingsController extends Controller
                 ])
             ]);
         }
+        else if ($name == 'wacepay') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'wacepay'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'password' => $request['wacepay_password'],
+                    'username' => $request['wacepay_username'],
+                    'url' => $request['wacepay_url'],
+                    //'token' => $request['wacepay_token']
+                ])
+            ]);
+        }
 
         Toastr::success(translate('payment settings updated!'));
         return back();
