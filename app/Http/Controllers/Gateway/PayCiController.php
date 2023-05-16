@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Gateway;
 use App\CentralLogics\helpers;
 use App\Models\User;
 use App\Models\WithdrawRequest;
+use Illuminate\Support\Facades\Request;
 use Psr\Log\LoggerInterface;
 
 class PayCiController
@@ -37,6 +38,7 @@ class PayCiController
         $amount=$withdrawRequest->amount;
         $user=User::query()->find($withdrawRequest->user_id);
         $country=helpers::getCountyFile($user->dial_country_code);
+        $txnid="EDHPay-".$withdrawRequest->id;
         $dataNeste = [
             'apikey' => $this->apikey,
             'full_name' => $user->f_name,
@@ -44,14 +46,16 @@ class PayCiController
             'beneficiary' => $methods['telephone'],
             'description' => "Collet wetransfertcash",
             'method' => "Mobile_money",
-            'id_transaction' => $withdrawRequest->id,
-            'callback_url' => "",
+            'id_transaction' => $txnid,
+            'callback_url' => route('payci_callback').'?txnid='.$txnid,
         ];
-        $data = json_encode($dataNeste);
 
         if ($this->makeAuth()==true){
             $res = $this->cURL($endpoint, $dataNeste);
             $response = $res;
+            $withdrawRequest->update([
+               'admin_note'=>$txnid
+            ]);
         }else{
             $response = [
                 'comments'=>'eurreur auth'
@@ -59,6 +63,9 @@ class PayCiController
         }
 
         return $response;
+    }
+    public function callback(Request $request){
+
     }
     public function makeCollect(WithdrawRequest $withdrawRequest,$notifyurl){
         $endpoint = '/API/redirection/index.php';

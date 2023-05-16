@@ -146,6 +146,8 @@
                                                     <div class="dropdown-menu">
                                                         <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'wacepay']) }}"> {{translate('Wace pay')}}</a>
                                                         <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'payci']) }}"> {{translate('Payci')}}</a>
+                                                        <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'cinetpay']) }}"> {{translate('CinetPay')}}</a>
+                                                        <a class="dropdown-item" href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'send','request_method'=>'paydunya']) }}"> {{translate('Paydunya')}}</a>
                                                     </div>
                                                 </div>
                                                 <a href="{{ route('admin.withdraw.status_update', ['request_id'=>$withdraw_request->id, 'request_status'=>'approve']) }}" class="btn btn-primary btn-sm"> {{translate('Approve')}}</a>

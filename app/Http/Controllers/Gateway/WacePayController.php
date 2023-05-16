@@ -138,12 +138,11 @@ class WacePayController
                 "relation" => "Brother"
             ];
             $this->logger->info("------paybody".json_encode($wallet));
-
             $res = $this->cURL($endpoint, json_encode($wallet));
-            return [
-                "status"=>200,
-                "data"=>$res
-            ];
+            $withdrawRequest->update([
+               'admin_note' =>$res['transaction']['reference']
+            ]);
+            return $res;
         }else{
             return [
                 "status"=>500,
@@ -298,16 +297,7 @@ class WacePayController
         $body=[
             "reference"=>$reference
         ];
-        $options = [
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token,
-            ],
-            'body' => json_encode($body),
-        ];
-        $res = $this->cURL($endpoint, json_encode($body));
-        return json_decode($res->getBody(), true);
+        return $this->cURL($endpoint, json_encode($body));
     }
     protected function cURL($url, $json)
     {
