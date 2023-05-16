@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Gateway\FlutterwaveController;
 use App\Http\Controllers\Gateway\MercadoPagoController;
+use App\Http\Controllers\Gateway\PayCiController;
 use App\Http\Controllers\Gateway\PaydunyaController;
 use App\Http\Controllers\Gateway\PaymobController;
 use App\Http\Controllers\Gateway\PaypalPaymentController;
@@ -124,7 +125,8 @@ Route::get('/rave/callback', [FlutterwaveController::class, 'callback'])->name('
 //PAYpaydunya
 Route::post('/paydunya/callback', [PaydunyaController::class, 'callback'])->name('paydunya_callback');
 Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::class, 'make_payment'])->name('paydunya_make_payment');
-
+//PayCi
+Route::post('/payci/callback', [PayCiController::class, 'callback'])->name('payci_callback');
 //Route::get('add-currency', function () {
 //    $currencies = file_get_contents("installation/currency.json");
 //    $decoded = json_decode($currencies, true);
