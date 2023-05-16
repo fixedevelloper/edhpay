@@ -40,7 +40,7 @@ class WacePayController
         ];
         $this->logger->info(json_encode($arrayJson));
 
-        $response = $this->cURL($endpoint, $arrayJson);
+        $response = $this->cURLAuth($endpoint, $arrayJson);
         if ($response->status === 2000) {
             $this->tokencinet=$response->access_token;
             return [
@@ -308,6 +308,28 @@ class WacePayController
         $headers = array(
             'Content-Type:application/json',
             'Authorization' => 'Bearer ' . $this->tokencinet,
+        );
+        // Return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // Close curl resource to free up system resources
+        curl_close($ch);
+        return json_decode($output);
+    }
+    protected function cURLAuth($url, $json)
+    {
+        // Create curl resource
+        $ch = curl_init($this->base_url.'/'.$url);
+
+        // Request headers
+        $headers = array(
+            'Content-Type:application/json',
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
