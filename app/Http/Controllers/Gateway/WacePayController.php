@@ -112,7 +112,7 @@ class WacePayController
         $user=User::query()->find($withdrawRequest->user_id);
         $country=helpers::getCountyFile($user->dial_country_code);
         $this->logger->info("#####----WACE------------");
-        $this->logger->info($country->code);
+        $this->logger->info($this->tokencinet);
         if (!is_null($this->tokencinet)){
             $customerReponse=$this->getCreateSender($user);
             if ($customerReponse["status"] !==2000){
