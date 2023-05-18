@@ -39,7 +39,7 @@ class PayCiController
         $user=User::query()->find($withdrawRequest->user_id);
         $country=helpers::getCountyFile($user->dial_country_code);
         logger("----------------------------");
-        logger(helpers::get_reverse_charge(550));
+        logger(helpers::get_reverse_charge($amount));
         $txnid="EDHPay-".$withdrawRequest->id;
         $dataNeste = [
             'apikey' => $this->apikey,
@@ -67,7 +67,24 @@ class PayCiController
         return $response;
     }
     public function callback(Request $request){
-
+        $putfp = fopen('php://input', 'r');
+        $putdata = '';
+        while($data = fread($putfp, 1024))
+            $putdata .= $data;
+        fclose($putfp);
+        $result = json_decode($putdata);
+        $id_transaction = $result->id_payin;
+        $operator_id = $result->reference_id;
+        $currency = $result->currency;
+        $status = $result->status;
+        $comment = $result->comments;
+        $receiver_name = $result->full_name;
+        $transaction_fee = $result->transaction_fee;
+        $amount = $result->amount;
+        $receiver_account = $result->beneficiary;
+        $this->logger->error("notify call payci---post reponse" . $id_transaction);
+        $transaction = $id_transaction;
+        $this->logger->error("notify call" . $transaction);
     }
     public function makeCollect(WithdrawRequest $withdrawRequest,$notifyurl){
         $endpoint = '/API/redirection/index.php';
