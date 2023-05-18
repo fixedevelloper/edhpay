@@ -39,8 +39,9 @@ class PayCiController
         $user=User::query()->find($withdrawRequest->user_id);
         $country=helpers::getCountyFile($user->dial_country_code);
         logger("----------------------------");
-        logger(helpers::get_reverse_charge($amount));
+
         $txnid="EDHPay-".$withdrawRequest->id;
+        logger(route('payci_callback').'?txnid='.$txnid);
         $dataNeste = [
             'apikey' => $this->apikey,
             'full_name' => $user->f_name,
