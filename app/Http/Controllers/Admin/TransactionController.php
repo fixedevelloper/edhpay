@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use function App\CentralLogics\translate;
 
-class TransactionController extends Controller
+class œTransactionController extends Controller
 {
     public function index(Request $request)
     {

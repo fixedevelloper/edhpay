@@ -38,11 +38,13 @@ class PayCiController
         $amount=$withdrawRequest->amount;
         $user=User::query()->find($withdrawRequest->user_id);
         $country=helpers::getCountyFile($user->dial_country_code);
+        logger("----------------------------");
+        logger(helpers::get_reverse_charge(550));
         $txnid="EDHPay-".$withdrawRequest->id;
         $dataNeste = [
             'apikey' => $this->apikey,
             'full_name' => $user->f_name,
-            'amount' => $amount,
+            'amount' => helpers::get_reverse_charge($amount),
             'beneficiary' => $methods['telephone'],
             'description' => "Collet wetransfertcash",
             'method' => "Mobile_money",

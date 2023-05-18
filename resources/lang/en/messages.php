@@ -986,4 +986,7 @@
   'apikey' => 'Apikey',
   'nom_et_prenom' => 'Nom et prenom',
   'Payci' => 'Payci',
+  'Paydunya' => 'Paydunya',
+  'CinetPay' => 'CinetPay',
+  'Wace pay' => 'Wace pay',
 );
