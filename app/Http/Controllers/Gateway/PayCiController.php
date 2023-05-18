@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Gateway;
 
 
 use App\CentralLogics\helpers;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WithdrawRequest;
 use Illuminate\Support\Facades\Request;
 use Psr\Log\LoggerInterface;
 
-class PayCiController
+class PayCiController extends Controller
 {
     private const LOGIN="donald.ebvoundi@agensic.com";
     private const PASSWORD="don84ald";

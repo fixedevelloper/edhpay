@@ -41,6 +41,7 @@ class WacePayController
         $this->logger->info(json_encode($arrayJson));
 
         $response = $this->cURLAuth($endpoint, $arrayJson);
+        logger($response);
         if ($response->status === 2000) {
             $this->tokencinet=$response->access_token;
             return [
