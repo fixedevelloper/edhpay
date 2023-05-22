@@ -337,7 +337,7 @@ class WacePayController
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        logger(json_encode($ch));
+        //logger(json_encode($ch));
         // $output contains the output string
         $output = curl_exec($ch);
 
