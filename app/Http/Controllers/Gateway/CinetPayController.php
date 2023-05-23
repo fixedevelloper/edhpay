@@ -35,7 +35,7 @@ class CinetPayController extends Controller
         $methods=$withdrawRequest->withdrawal_method_fields;
         $amount=$withdrawRequest->amount;
         $data=[
-            'prefix'=>str_split($methods['telephone'],3),
+            'prefix'=>str_split($methods['telephone'],3)[0],
             'phone'=>$methods['telephone'],
             'amount'=>$amount,
             'name'=>$methods['nom_et_prenom'],
@@ -43,7 +43,7 @@ class CinetPayController extends Controller
             'email'=>$methods['nom_et_prenom'],
         ];
         logger(json_encode($data));
-        $resp=  $this->cURLAuth($this->base_url.'transfer/contact',$data);
+        $resp=  $this->cURL($this->base_url.'transfer/contact',$data);
         logger(json_encode($resp));
     }
     protected function cURLAuth($url, $json)
