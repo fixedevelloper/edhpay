@@ -54,12 +54,13 @@ class CinetPayController extends Controller
 
         // Request headers
         $headers = array(
-            'Content-Type:application/x-www-form-urlencoded'
+            'Accept' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'application/x-www-form-urlencoded',
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // $output contains the output string
