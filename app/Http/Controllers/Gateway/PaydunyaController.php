@@ -338,7 +338,7 @@ class PaydunyaController extends Controller
             case 'orange mali':
                 return 'orange-money-mali';
             default:
-                return '';
+                return 'mtn-ci';
         }
     }
 }
