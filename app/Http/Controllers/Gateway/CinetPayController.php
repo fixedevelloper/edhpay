@@ -59,7 +59,7 @@ class CinetPayController extends Controller
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json));
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // $output contains the output string
