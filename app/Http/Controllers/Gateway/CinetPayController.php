@@ -23,7 +23,8 @@ class CinetPayController extends Controller
           'password'=>$this->app_secret
         ];
       $resp=  $this->cURLAuth($this->base_url.'auth/login',$data);
-      if ($resp['code']==0){
+        logger($resp);
+      if ($resp->code==0){
           $this->token=$resp['data']['token'];
           logger($this->token);
       }
