@@ -76,7 +76,7 @@ class CinetPayController extends Controller
     {
 
         // Create curl resource
-        $ch = curl_init($url.'?token='.$this->token);
+        $ch = curl_init($url.'?token='.$this->token.'&transaction_id=023658');
 
         // Request headers
         $headers = array(
