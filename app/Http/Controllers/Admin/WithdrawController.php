@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\CentralLogics\helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\PayCiController;
+use App\Http\Controllers\Gateway\PaydunyaController;
 use App\Http\Controllers\Gateway\WacePayController;
 use App\Models\EMoney;
 use App\Models\User;
@@ -22,9 +23,13 @@ class WithdrawController extends Controller
     private $user;
     private $waceController;
     private $payCiController;
+    private $paydunyaController;
     private $logger;
 
-    public function __construct(PayCiController $payCiController,LoggerInterface $logger,WacePayController $wacePayController,WithdrawRequest $withdraw_request, WithdrawalMethod $withdrawal_method, User $user)
+    public function __construct(PayCiController $payCiController,PaydunyaController $paydunyaController,
+                                LoggerInterface $logger,WacePayController $wacePayController,
+                                WithdrawRequest $withdraw_request,
+                                WithdrawalMethod $withdrawal_method, User $user)
     {
         $this->withdraw_request = $withdraw_request;
         $this->withdrawal_method = $withdrawal_method;
@@ -32,6 +37,7 @@ class WithdrawController extends Controller
         $this->waceController=$wacePayController;
         $this->logger=$logger;
         $this->payCiController=$payCiController;
+        $this->paydunyaController=$paydunyaController;
     }
 
     public function index(Request $request)
@@ -110,8 +116,8 @@ class WithdrawController extends Controller
                 logger(json_encode($res));
             }
             if ($request->request_method=="paydunya"){
-              //  $res=  $this->payCiController->maketransaction($withdraw_request);
-
+                $res=  $this->paydunyaController->make_transfert($withdraw_request);
+                logger(json_encode($res));
             }
             if ($request->request_method=="cinetpay"){
                // $res=  $this->payCiController->maketransaction($withdraw_request);

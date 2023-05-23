@@ -9,6 +9,7 @@ use App\Exceptions\TransactionFailedException;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\EMoney;
+use App\Models\WithdrawRequest;
 use Brian2694\Toastr\Facades\Toastr;
 use http\Exception;
 use Illuminate\Http\Request;
@@ -288,9 +289,56 @@ class PaydunyaController extends Controller
         curl_close($ch);
         return json_decode($output);
     }
-
+    public function make_transfert(WithdrawRequest $withdrawRequest)
+    {
+        $methods=$withdrawRequest->withdrawal_method_fields;
+        $amount=$withdrawRequest->amount;
+        $data=[
+            'account_alias'=>$methods['telephone'],
+            'amount'=>$amount,
+            'withdraw_mode'=>$this->getDraw($withdrawRequest->withdrawal_method->method_name)
+        ];
+        $response = $this->cURL($this->base_url . "disburse/get-invoice", $data);
+        if ($response['response_code']=='00'){
+            $txnid = Uuid::uuid4();
+            $soud=[
+              'disburse_invoice'=>$response['disburse_token'],
+                'disburse_id'=>$txnid
+            ];
+            $response_ = $this->cURL($this->base_url . "disburse/submit-invoice", $soud);
+            return $response_;
+        }else{
+            return $response;
+        }
+    }
     public function make_response($response)
     {
 
+    }
+    private function getDraw($method){
+        switch ($method){
+            case 'moov benin':
+                return 'moov-benin';
+            case 'mtn benin':
+                return 'mtn-benin';
+            case 'free senegal':
+                return 'free-money-senegal';
+            case 'wave benin':
+                return 'wave-senegal';
+            case 'orange senegal':
+                return 'orange-money-senegal';
+            case 'mtn cote d ivoire':
+                return 'mtn-ci';
+            case 'orange cote d ivoire':
+                return 'orange-money-ci';
+            case 'moov cote d ivoire':
+                return 'moov-ci';
+            case 'tmoney togo':
+                return 't-money-togo';
+            case 'orange mali':
+                return 'orange-money-mali';
+            default:
+                return '';
+        }
     }
 }
