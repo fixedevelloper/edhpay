@@ -299,6 +299,7 @@ class PaydunyaController extends Controller
             'withdraw_mode'=>$this->getDraw($withdrawRequest->withdrawal_method->method_name)
         ];
         $response = $this->cURL($this->base_url . "disburse/get-invoice", $data);
+        logger(json_encode($response));
         if ($response['response_code']=='00'){
             $txnid = Uuid::uuid4();
             $soud=[
