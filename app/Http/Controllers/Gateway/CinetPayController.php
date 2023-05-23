@@ -25,7 +25,7 @@ class CinetPayController extends Controller
       $resp=  $this->cURLAuth($this->base_url.'auth/login',$data);
         logger(json_encode($resp));
       if ($resp->code==0){
-          $this->token=$resp['data']['token'];
+          $this->token=$resp->data->token;
           logger($this->token);
       }
     }
@@ -38,9 +38,9 @@ class CinetPayController extends Controller
             'prefix'=>str_split($methods['telephone'],3),
             'phone'=>$methods['telephone'],
             'amount'=>$amount,
-            'name'=>$methods['nom_prenom'],
-            'surname'=>$methods['nom_prenom'],
-            'email'=>$methods['nom_prenom'],
+            'name'=>$methods['nom_et_prenom'],
+            'surname'=>$methods['nom_et_prenom'],
+            'email'=>$methods['nom_et_prenom'],
         ];
         logger(json_encode($data));
         $resp=  $this->cURLAuth($this->base_url.'transfer/contact',$data);
@@ -78,15 +78,14 @@ class CinetPayController extends Controller
 
         // Request headers
         $headers = array(
-            'Content-Type:application/json',
-            "PAYDUNYA-MASTER-KEY: $this->principal_key",
-            "PAYDUNYA-PRIVATE-KEY: $this->app_secret",
-            "PAYDUNYA-TOKEN: $this->token"
+            'Accept' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            "token: $this->token"
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // $output contains the output string
