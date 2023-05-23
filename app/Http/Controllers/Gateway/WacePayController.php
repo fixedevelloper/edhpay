@@ -330,6 +330,7 @@ class WacePayController
 
         // Request headers
         $headers = array(
+            'Accept' => 'application/json',
             'Content-Type:application/json',
         );
         // Return the transfer as a string
