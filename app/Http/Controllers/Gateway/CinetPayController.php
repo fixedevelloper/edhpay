@@ -39,7 +39,7 @@ class CinetPayController extends Controller
         $data=[
             'prefix'=>str_split($methods['telephone'],3)[0],
             'phone'=>$phone,
-            'amount'=>$amount,
+            'amount'=>strval($amount),
             'name'=>$methods['nom_et_prenom'],
             'surname'=>$methods['nom_et_prenom'],
             'email'=>"edh@gmail.com",
