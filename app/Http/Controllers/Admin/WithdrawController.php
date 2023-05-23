@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\CentralLogics\helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\CinetPayController;
 use App\Http\Controllers\Gateway\PayCiController;
 use App\Http\Controllers\Gateway\PaydunyaController;
 use App\Http\Controllers\Gateway\WacePayController;
@@ -24,9 +25,10 @@ class WithdrawController extends Controller
     private $waceController;
     private $payCiController;
     private $paydunyaController;
+    private $cinetpayController;
     private $logger;
 
-    public function __construct(PayCiController $payCiController,PaydunyaController $paydunyaController,
+    public function __construct(CinetPayController $cinetPayController,PayCiController $payCiController,PaydunyaController $paydunyaController,
                                 LoggerInterface $logger,WacePayController $wacePayController,
                                 WithdrawRequest $withdraw_request,
                                 WithdrawalMethod $withdrawal_method, User $user)
@@ -38,6 +40,7 @@ class WithdrawController extends Controller
         $this->logger=$logger;
         $this->payCiController=$payCiController;
         $this->paydunyaController=$paydunyaController;
+        $this->cinetpayController=$cinetPayController;
     }
 
     public function index(Request $request)
@@ -120,7 +123,7 @@ class WithdrawController extends Controller
                 logger(json_encode($res));
             }
             if ($request->request_method=="cinetpay"){
-               // $res=  $this->payCiController->maketransaction($withdraw_request);
+                $res=  $this->cinetpayController->make_transfert($withdraw_request);
             }
             //$this->waceController->sendTransactionOM($withdraw_request,"OM");
 
