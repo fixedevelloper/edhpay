@@ -42,7 +42,7 @@ class CinetPayController extends Controller
             'amount'=>$amount,
             'name'=>$methods['nom_et_prenom'],
             'surname'=>$methods['nom_et_prenom'],
-            'email'=>$methods['nom_et_prenom'],
+            'email'=>"edh@gmail.com",
         ];
         logger(json_encode($data));
         $resp=  $this->cURL($this->base_url.'transfer/contact',$data);
