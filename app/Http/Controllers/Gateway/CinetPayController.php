@@ -80,7 +80,7 @@ class CinetPayController extends Controller
         $headers = array(
             'Accept' => 'application/x-www-form-urlencoded',
             'Content-Type' => 'application/x-www-form-urlencoded',
-            "token: $this->token"
+            "token"=> $this->token
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
