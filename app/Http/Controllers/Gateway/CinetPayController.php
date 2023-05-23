@@ -35,9 +35,10 @@ class CinetPayController extends Controller
         logger($this->token);
         $methods=$withdrawRequest->withdrawal_method_fields;
         $amount=$withdrawRequest->amount;
+        $phone=substr($methods['telephone'],3);
         $data=[
             'prefix'=>str_split($methods['telephone'],3)[0],
-            'phone'=>$methods['telephone'],
+            'phone'=>$phone,
             'amount'=>$amount,
             'name'=>$methods['nom_et_prenom'],
             'surname'=>$methods['nom_et_prenom'],
