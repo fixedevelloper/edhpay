@@ -26,12 +26,13 @@ class CinetPayController extends Controller
         logger(json_encode($resp));
       if ($resp->code==0){
           $this->token=$resp->data->token;
-          logger($this->token);
+
       }
     }
     public function make_transfert(WithdrawRequest $withdrawRequest)
     {
         $this->authentificate();
+        logger($this->token);
         $methods=$withdrawRequest->withdrawal_method_fields;
         $amount=$withdrawRequest->amount;
         $data=[
@@ -74,7 +75,7 @@ class CinetPayController extends Controller
     {
 
         // Create curl resource
-        $ch = curl_init($url);
+        $ch = curl_init($url.'?token='.$this->token);
 
         // Request headers
         $headers = array(
