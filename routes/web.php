@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Gateway\CinetPayController;
 use App\Http\Controllers\Gateway\FlutterwaveController;
 use App\Http\Controllers\Gateway\MercadoPagoController;
 use App\Http\Controllers\Gateway\PayCiController;
@@ -127,6 +128,10 @@ Route::post('/paydunya/callback', [PaydunyaController::class, 'callback'])->name
 Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::class, 'make_payment'])->name('paydunya_make_payment');
 //PayCi
 Route::post('/payci/callback', [PayCiController::class, 'callback'])->name('payci_callback');
+//CinetPay
+Route::post('/cinetpay/callback', [CinetPayController::class, 'callback'])->name('cinetpay_callback');
+Route::match(['get', 'post'],'/cinetpay/make-payment', [CinetPayController::class, 'make_payment'])->name('cinetpay_make_payment');
+
 //Route::get('add-currency', function () {
 //    $currencies = file_get_contents("installation/currency.json");
 //    $decoded = json_decode($currencies, true);
