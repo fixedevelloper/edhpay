@@ -46,14 +46,15 @@ class CinetPayController extends Controller
                 "transaction_id" => $txnid,
                 "description" => "TRANSACTION DESCRIPTION",
                 "return_url" => route('payment-success'),
-                "notify_url" => route('cinetpay_callback') . '?txnid=' . $txnid,
+                "notify_url" => route('cinetpay_callback') . '?txnid=' . $hash,
                 "metadata" => "user001",
                 "customer_id" => "001",
                 "customer_name" => "John",
                 "customer_surname" => "Doe",
                 "channels" => "ALL",
             ];
-            $response = $this->cURL($this->collect_url . "payment", json_encode($order));
+            logger(json_encode($order));
+            $response = $this->cURLCollet($this->collect_url . "payment", json_encode($order));
             logger(">>>>>++++ CINETPAY MAKE PAYEMENT" . json_encode($response));
             $response_decoded = $response;
             if ($response_decoded->code && $response_decoded->code == "201") {
@@ -79,8 +80,8 @@ class CinetPayController extends Controller
 
         // Request headers
         $headers = array(
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json; charset=utf-8',
+            'Accept' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'application/x-www-form-urlencoded',
             "token" => $this->token
         );
         // Return the transfer as a string
@@ -163,7 +164,31 @@ class CinetPayController extends Controller
         curl_close($ch);
         return json_decode($output);
     }
+    protected function cURLCollet($url, $json)
+    {
 
+        // Create curl resource
+        $ch = curl_init($url);
+
+        // Request headers
+        $headers = array(
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json; charset=utf-8',
+            "token" => $this->token
+        );
+        // Return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // Close curl resource to free up system resources
+        curl_close($ch);
+        return json_decode($output);
+    }
     protected function createConctact($data)
     {
         $resp = $this->cURL($this->base_url . 'transfer/contact', ['data' => json_encode($data)]);
