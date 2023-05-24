@@ -39,10 +39,11 @@ class CinetPayController extends Controller
             $str = "$value|||||||||||$txnid";
             $hash = hash('sha512', $str);
             $order = [
-                "amount" => 2500,
+
                 "apikey" => $this->app_key,
                 "site_id" => $this->site_id,
                 "transaction_id" => $txnid,
+                "amount" => 2500,
                 "currency" => "XAF",
                 "alternative_currency"=>"USD",
                 "description" => "TRANSACTION DESCRIPTION",
