@@ -27,7 +27,7 @@ class CinetPayController extends Controller
 
     public function make_payment()
     {
-        $this->logger->info(">>>>>++++ CINETPAY MAKE PAYEMENT");
+        logger(">>>>>++++ CINETPAY MAKE PAYEMENT");
         $currency_code = Currency::where(['currency_code' => 'EGP'])->first();
         if (isset($currency_code) == false) {
             Toastr::error(translate('paymob_supports_EGP_currency'));
@@ -54,7 +54,7 @@ class CinetPayController extends Controller
                 "channels" => "ALL",
             ];
             $response = $this->cURL($this->collect_url . "payment", json_encode($order));
-            $this->logger->info(">>>>>++++ CINETPAY MAKE PAYEMENT" . json_encode($response));
+            logger(">>>>>++++ CINETPAY MAKE PAYEMENT" . json_encode($response));
             $response_decoded = $response;
             if ($response_decoded->code && $response_decoded->code == "201") {
                 Session::put('cinetpay_transaction', $response_decoded->data->payment_token);
@@ -64,7 +64,7 @@ class CinetPayController extends Controller
                 return \redirect()->route('payment-fail');
             }
         } catch (\Exception $exception) {
-            $this->logger->error(">>>>>++++ CINETPAY EXCEPTION" . $exception);
+            logger(">>>>>++++ CINETPAY EXCEPTION" . $exception);
             Toastr::error(translate('country_permission_denied_or_misconfiguration'));
             return back()->withErrors(['error' => 'Failed']);
         }
