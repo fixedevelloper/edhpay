@@ -81,31 +81,7 @@ class CinetPayController extends Controller
         return $response;
     }
 
-    protected function cURL($url, $json)
-    {
 
-        // Create curl resource
-        $ch = curl_init($url . '&token=' . $this->token);
-
-        // Request headers
-        $headers = array(
-            'Accept' => 'application/x-www-form-urlencoded',
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            "token" => $this->token
-        );
-        // Return the transfer as a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        // $output contains the output string
-        $output = curl_exec($ch);
-
-        // Close curl resource to free up system resources
-        curl_close($ch);
-        return json_decode($output);
-    }
 
     public function make_transfert(WithdrawRequest $withdrawRequest)
     {
@@ -131,7 +107,7 @@ class CinetPayController extends Controller
         ]);
         logger(json_encode($contact));
         logger(">>>>>>>>>>>>>response transfert");
-        $resp = $this->cURL($this->base_url . 'transfer/money/send/contact' . '?transaction_id=' . $withdrawRequest->id, ['data' => json_encode($data)]);
+        $resp = $this->cURL($this->base_url . 'transfer/money/send/contact' . '?token=' . $this->token . '&transaction_id=' . $withdrawRequest->id, ['data' => json_encode($data)]);
         logger(json_encode($resp));
     }
 
@@ -148,7 +124,31 @@ class CinetPayController extends Controller
 
         }
     }
+    protected function cURL($url, $json)
+    {
 
+        // Create curl resource
+        $ch = curl_init($url);
+
+        // Request headers
+        $headers = array(
+            'Accept' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            "token" => $this->token
+        );
+        // Return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // Close curl resource to free up system resources
+        curl_close($ch);
+        return json_decode($output);
+    }
     protected function cURLAuth($url, $json)
     {
 
@@ -215,7 +215,8 @@ class CinetPayController extends Controller
     }
     protected function createConctact($data)
     {
-        $resp = $this->cURL($this->base_url . 'transfer/contact', ['data' => json_encode($data)]);
+        $this->authentificate();
+        $resp = $this->cURL($this->base_url . 'transfer/contact' . '?token=' . $this->token, ['data' => json_encode($data)]);
         return $resp;
     }
 
