@@ -45,7 +45,7 @@ class CinetPayController extends Controller
                 "transaction_id" => $txnid,
                 'lang' => 'fr',
                 "amount" => 250,
-                "currency" => "USD",
+                "currency" => "XAF",
                 "alternative_currency"=>"",
                 "description" => "TRANSACTION DESCRIPTION",
                 "return_url" => route('payment-success'),
