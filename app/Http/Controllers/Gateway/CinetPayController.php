@@ -63,7 +63,7 @@ class CinetPayController extends Controller
                 "channels" => "ALL",
             ];
             logger(json_encode($order));
-            $response = $this->cURLCollet($this->collect_url . "payment", json_encode($order));
+            $response = $this->cURLCollet($this->collect_url . "payment", $order);
             logger(">>>>>++++ CINETPAY MAKE PAYEMENT" . json_encode($response));
             $response_decoded = $response;
             if ($response_decoded->code && $response_decoded->code == "201") {
@@ -177,24 +177,40 @@ class CinetPayController extends Controller
     {
 
         // Create curl resource
-        $ch = curl_init($url);
+      /*  $ch = curl_init($url);
 
         // Request headers
         $headers = array(
-            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);*/
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 45,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($json),
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'textuseragent',
+            CURLOPT_HTTPHEADER => array(
+                "content-type:application/json"
+            ),
+        ));
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output = curl_exec($curl);
 
         // Close curl resource to free up system resources
-        curl_close($ch);
+        curl_close($curl);
         return json_decode($output);
     }
     protected function createConctact($data)
