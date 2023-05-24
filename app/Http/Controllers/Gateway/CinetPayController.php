@@ -54,11 +54,12 @@ class CinetPayController extends Controller
         ]);
         logger(json_encode($contact));
         logger(">>>>>>>>>>>>>response transfert");
-        $resp=  $this->cURL($this->base_url.'transfer/money/send/contact',$data);
+        $resp=  $this->cURL($this->base_url.'transfer/money/send/contact',['data'=>json_encode($data)]);
         logger(json_encode($resp));
     }
     protected function createConctact($data){
-        $resp=  $this->cURL($this->base_url.'transfer/contact',$data);
+        $resp=  $this->cURL($this->base_url.'transfer/contact',['data'=>json_encode($data)]);
+        return $resp;
     }
     protected function cURLAuth($url, $json)
     {
