@@ -45,8 +45,11 @@ class CinetPayController extends Controller
             'email'=>"edh@gmail.com",
         ];
         logger(json_encode($data));
-        $resp=  $this->cURL($this->base_url.'transfer/contact',$data);
+        $resp=  $this->cURL($this->base_url.'transfer//money/send/contact',$data);
         logger(json_encode($resp));
+    }
+    protected function createConctact($data){
+        $resp=  $this->cURL($this->base_url.'transfer/contact',$data);
     }
     protected function cURLAuth($url, $json)
     {
