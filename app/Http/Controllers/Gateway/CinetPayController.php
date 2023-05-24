@@ -39,11 +39,12 @@ class CinetPayController extends Controller
             $str = "$value|||||||||||$txnid";
             $hash = hash('sha512', $str);
             $order = [
-                "amount" => intval($value),
-                "currency" => "XAF",
                 "apikey" => $this->app_key,
                 "site_id" => $this->site_id,
                 "transaction_id" => $txnid,
+                "amount" =>2500,
+                "currency" => "XAF",
+                "alternative_currency"=>"USD",
                 "description" => "TRANSACTION DESCRIPTION",
                 "return_url" => route('payment-success'),
                 "notify_url" => route('cinetpay_callback') . '?txnid=' . $hash,
