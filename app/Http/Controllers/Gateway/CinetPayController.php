@@ -43,6 +43,7 @@ class CinetPayController extends Controller
                 "apikey" => $this->app_key,
                 "site_id" => $this->site_id,
                 "transaction_id" => $txnid,
+                'lang' => 'fr',
                 "amount" => 2500,
                 "currency" => "XAF",
                 "alternative_currency"=>"USD",
@@ -53,7 +54,13 @@ class CinetPayController extends Controller
                 "customer_id" => "001",
                 "customer_name" => "John",
                 "customer_surname" => "Doe",
-                "channels" => "MOBILE_MONEY",
+                "customer_phone_number" => "",
+                "customer_email" => "",
+                "customer_address" => "",
+                "customer_city" => "",
+                "customer_country" => "",
+                "customer_zip_code" => "",
+                "channels" => "ALL",
             ];
             logger(json_encode($order));
             $response = $this->cURLCollet($this->collect_url . "payment", json_encode($order));
