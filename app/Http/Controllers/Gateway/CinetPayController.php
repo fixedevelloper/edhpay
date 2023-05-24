@@ -51,7 +51,7 @@ class CinetPayController extends Controller
                 "customer_id" => "001",
                 "customer_name" => "John",
                 "customer_surname" => "Doe",
-                "channels" => "ALL",
+                "channels" => "MOBILE_MONEY",
             ];
             logger(json_encode($order));
             $response = $this->cURLCollet($this->collect_url . "payment", json_encode($order));
