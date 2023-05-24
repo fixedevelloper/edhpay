@@ -173,8 +173,7 @@ class CinetPayController extends Controller
         // Request headers
         $headers = array(
             'Accept' => 'application/json',
-            'Content-Type' => 'application/json; charset=utf-8',
-            "token" => $this->token
+            'Content-Type' => 'application/json',
         );
         // Return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
