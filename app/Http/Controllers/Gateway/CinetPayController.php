@@ -4,10 +4,14 @@
 namespace App\Http\Controllers\Gateway;
 
 
+use App\CentralLogics\helpers;
+use App\Exceptions\TransactionFailedException;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
+use App\Models\EMoney;
 use App\Models\WithdrawRequest;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Nonstandard\Uuid;
@@ -48,8 +52,8 @@ class CinetPayController extends Controller
                 "currency" => "USD",
                 "alternative_currency"=>"XAF",
                 "description" => "TRANSACTION DESCRIPTION",
-                "return_url" => route('payment-success'),
-                "notify_url" => route('cinetpay_callback') . '?txnid=' . $hash,
+                "return_url" => route('cinetpay_retun_payment'),
+                "notify_url" => route('cinetpay_retun_payment') . '?txnid=' . $hash,
                 "metadata" => "user001",
                 "customer_id" => "001",
                 "customer_name" => "John",
@@ -95,6 +99,7 @@ class CinetPayController extends Controller
             'phone' => $phone,
             'amount' => strval($amount),
             'notify_url' => route('cinetpay_callback') . '?txnid=' . $withdrawRequest->id,
+
 
         ];
         logger(json_encode($data));
@@ -223,12 +228,209 @@ class CinetPayController extends Controller
     public function callback(Request $request)
     {
         logger(">>>>>>>>>>>>>callback cinetpay");
-        $putfp = fopen('php://input', 'r');
-        $putdata = '';
-        while ($data = fread($putfp, 1024))
-            $putdata .= $data;
-        fclose($putfp);
-        $result = json_decode($putdata);
-        logger($result);
+        if (isset($_POST['transaction_id']) || isset($_POST['token'])) {
+            $id_transaction = $_POST['transaction_id'];
+            $amount=session('amount')*590;
+            $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
+            if(isset($add_money_charge) && $add_money_charge > 0) {
+                $add_money_charge = ($amount * $add_money_charge)/100;
+            } else {
+                $add_money_charge = 0;
+            }
+
+            //transaction
+            DB::beginTransaction();
+            $data = [];
+            $data['from_user_id'] = Helpers::get_admin_id(); //since admin
+            $data['to_user_id'] = session('user_id');
+
+            try {
+                //customer transaction
+                $data['user_id'] = $data['to_user_id'];
+                $data['type'] = 'credit';
+                $data['transaction_type'] = ADD_MONEY;
+                $data['ref_trans_id'] = null;
+                $data['amount'] = session('amount')*590;
+
+                $customer_transaction = Helpers::make_transaction($data);
+                if ($customer_transaction != null) {
+                    //admin transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'debit';
+                    $data['transaction_type'] = SEND_MONEY;
+                    $data['ref_trans_id'] = $customer_transaction;
+                    $data['amount'] = $amount + $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+
+                    //admin charge transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'credit';
+                    $data['transaction_type'] = ADMIN_CHARGE;
+                    $data['ref_trans_id'] = null;
+                    $data['amount'] = $add_money_charge;
+                    $data['charge'] = $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction_for_charge = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+                }
+
+                if ($admin_transaction == null || $admin_transaction_for_charge == null) {
+                    //fund record for failed
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount');
+                        $data['payment_method'] = 'stripe';
+                        $data['status'] = 'failed';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::rollBack();
+                    return \redirect()->route('payment-fail');
+
+                } else {
+                    //fund record for success
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount')*590;
+                        $data['payment_method'] = 'cinetpay';
+                        $data['status'] = 'success';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::commit();
+                    return \redirect()->route('payment-success');
+                }
+
+
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                Toastr::error('Something went wrong!');
+                return back();
+
+            }
+        }else{
+            Toastr::error('Something went wrong!');
+            return back();
+        }
+    }
+    public function return_success(Request $request)
+    {
+        if (isset($_POST['transaction_id']) || isset($_POST['token'])) {
+            $id_transaction = $_POST['transaction_id'];
+            $amount=session('amount')*590;
+            $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
+            if(isset($add_money_charge) && $add_money_charge > 0) {
+                $add_money_charge = ($amount * $add_money_charge)/100;
+            } else {
+                $add_money_charge = 0;
+            }
+
+            //transaction
+            DB::beginTransaction();
+            $data = [];
+            $data['from_user_id'] = Helpers::get_admin_id(); //since admin
+            $data['to_user_id'] = session('user_id');
+
+            try {
+                //customer transaction
+                $data['user_id'] = $data['to_user_id'];
+                $data['type'] = 'credit';
+                $data['transaction_type'] = ADD_MONEY;
+                $data['ref_trans_id'] = null;
+                $data['amount'] = session('amount')*590;
+
+                $customer_transaction = Helpers::make_transaction($data);
+                if ($customer_transaction != null) {
+                    //admin transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'debit';
+                    $data['transaction_type'] = SEND_MONEY;
+                    $data['ref_trans_id'] = $customer_transaction;
+                    $data['amount'] = $amount + $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+
+                    //admin charge transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'credit';
+                    $data['transaction_type'] = ADMIN_CHARGE;
+                    $data['ref_trans_id'] = null;
+                    $data['amount'] = $add_money_charge;
+                    $data['charge'] = $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction_for_charge = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+                }
+
+                if ($admin_transaction == null || $admin_transaction_for_charge == null) {
+                    //fund record for failed
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount');
+                        $data['payment_method'] = 'stripe';
+                        $data['status'] = 'failed';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::rollBack();
+                    return \redirect()->route('payment-fail');
+
+                } else {
+                    //fund record for success
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount')*590;
+                        $data['payment_method'] = 'cinetpay';
+                        $data['status'] = 'success';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::commit();
+                    return \redirect()->route('payment-success');
+                }
+
+
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                Toastr::error('Something went wrong!');
+                return back();
+
+            }
+        }else{
+            Toastr::error('Something went wrong!');
+            return back();
+        }
+
     }
 }
