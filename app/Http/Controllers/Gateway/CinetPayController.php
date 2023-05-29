@@ -99,8 +99,6 @@ class CinetPayController extends Controller
             'phone' => $phone,
             'amount' => strval($amount),
             'notify_url' => route('cinetpay_callback') . '?txnid=' . $withdrawRequest->id,
-
-
         ];
         logger(json_encode($data));
         $contact = $this->createConctact([
@@ -331,6 +329,8 @@ class CinetPayController extends Controller
     }
     public function return_success(Request $request)
     {
+        logger(">>>>>>>>>>>>>return cinetpay");
+       // logger(json_encode($_POST));
         if (isset($_POST['transaction_id']) || isset($_POST['token'])) {
             $id_transaction = $_POST['transaction_id'];
             $amount=session('amount')*590;
@@ -428,6 +428,7 @@ class CinetPayController extends Controller
 
             }
         }else{
+            logger(">>>>>>>>>>>>>return end cinetpay");
             Toastr::error('Something went wrong!');
             return back();
         }
