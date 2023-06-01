@@ -329,6 +329,7 @@ class CinetPayController extends Controller
     }
     public function return_success(Request $request)
     {
+
         logger(">>>>>>>>>>>>>return cinetpay");
        // logger(json_encode($_POST));
         if (isset($_POST['transaction_id']) || isset($_POST['token'])) {

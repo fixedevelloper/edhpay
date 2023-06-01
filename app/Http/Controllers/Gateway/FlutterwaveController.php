@@ -26,10 +26,10 @@ class FlutterwaveController extends Controller
         // Enter the details of the payment
         $data = [
             'payment_options' => 'card,banktransfer',
-            'amount' => session('amount'), //hard coded
+            'amount' => session('amount')*Helpers::default_currency('eur'), //hard coded
             'email' => $user_data['email'] ?? EXAMPLE_MAIL,
             'tx_ref' => $reference,
-            'currency' => Helpers::currency_code(),
+            'currency' => "eur",
             'redirect_url' => route('flutterwave_callback'),
             'customer' => [
                 'email' => $user_data['email'] ?? EXAMPLE_MAIL,

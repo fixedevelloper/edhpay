@@ -320,6 +320,15 @@ class helpers
         $currency_code = BusinessSetting::where(['key' => 'currency'])->first()->value??'USD';
         return $currency_code;
     }
+    public static function default_currency($currency){
+        switch ($currency){
+            case "usd":
+                return 1/590;
+            case 'eur':
+                return 1/650;
+            default: return 1;
+        }
+}
 
     public static function currency_symbol()
     {

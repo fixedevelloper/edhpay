@@ -45,14 +45,14 @@ class PaypalPaymentController extends Controller
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
 
-        $pay_amount = session('amount');
+        $pay_amount = session('amount')*Helpers::default_currency('eur');
         $user_id = session('user_id');
         $customer = User::find($user_id);
 
         $items_array = [];
         $item = new Item();
         $item->setName($customer->f_name)
-            ->setCurrency(Helpers::currency_code())
+            ->setCurrency('eur')
             ->setQuantity(1)
             ->setPrice($pay_amount);
         array_push($items_array, $item);
