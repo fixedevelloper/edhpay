@@ -21,7 +21,7 @@ class DeviceVerifyMiddleware
         $device = explode("/", $device);
         if(env('APP_MODE') == LIVE && ($device[0] != 'Dart' || $device[0] != 'Mozilla')) {
             $errors = [];
-            array_push($errors, ['code' => 'auth-001', 'message' => 'Unauthorized8.']);
+            array_push($errors, ['code' => 'auth-001', 'message' => 'Unauthorized8.'.$device[0]]);
             abort(response()->json(['errors' => $errors], 401));
         }
         return $next($request);
