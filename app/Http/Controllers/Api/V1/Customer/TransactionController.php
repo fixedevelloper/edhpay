@@ -158,7 +158,7 @@ class TransactionController extends Controller
         }
 
         $receiver_phone = Helpers::filter_phone($request->phone);
-        logger($receiver_phone);
+        //logger($receiver_phone);
         $user = User::where('phone', $receiver_phone)->first();
         //Receiver Check
         if (!isset($user)) {
