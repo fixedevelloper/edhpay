@@ -26,7 +26,7 @@ class LoginController extends Controller
         }
 
         $phone = $request->dial_country_code . $request->phone;
-      
+        logger($request['password'].'-'.$phone);
         $user = User::customer()->where('phone', $phone)->first();
 
 
