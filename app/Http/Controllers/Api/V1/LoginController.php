@@ -26,7 +26,7 @@ class LoginController extends Controller
         }
 
         $phone = $request->dial_country_code . $request->phone;
-
+      
         $user = User::customer()->where('phone', $phone)->first();
 
 
@@ -39,12 +39,13 @@ class LoginController extends Controller
         if (isset($user->is_active) && $user->is_active == false) {
             return response()->json(response_formatter(AUTH_BLOCK_LOGIN_403, null, Helpers::error_processor($validator)), 403);
         }
-
+         logger($request['password']);
+         logger($user['password']);
         //password check
         if (!Hash::check($request['password'], $user['password'])) {
             return response()->json(response_formatter(AUTH_LOGIN_401, null, Helpers::error_processor($validator)), 401);
         }
-
+        //logger($phone);
         //log user history
         $log_status = self::log_user_history($request, $user->id);
         if(!$log_status) {

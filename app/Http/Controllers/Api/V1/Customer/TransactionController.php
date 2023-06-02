@@ -158,12 +158,14 @@ class TransactionController extends Controller
         }
 
         $receiver_phone = Helpers::filter_phone($request->phone);
+        logger($receiver_phone);
         $user = User::where('phone', $receiver_phone)->first();
         //Receiver Check
         if (!isset($user)) {
             return response()->json(['message' => 'Receiver not found'], 403);
         }
 
+        
         //kyc check
         if($user->is_kyc_verified != 1) {
             return response()->json(['message' => 'Receiver is not verified'], 403);
