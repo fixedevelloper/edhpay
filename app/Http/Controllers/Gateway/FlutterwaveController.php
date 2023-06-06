@@ -25,7 +25,7 @@ class FlutterwaveController extends Controller
         $user_data = User::find(session('user_id'));
         // Enter the details of the payment
         $data = [
-            'payment_options' => 'card,banktransfer',
+            'payment_options' => 'card,banktransfer,mobilemoneyfranco',
             'amount' => session('amount')*Helpers::default_currency('eur'), //hard coded
             'email' => $user_data['email'] ?? EXAMPLE_MAIL,
             'tx_ref' => $reference,
