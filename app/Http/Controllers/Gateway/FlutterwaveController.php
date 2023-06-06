@@ -29,7 +29,7 @@ class FlutterwaveController extends Controller
             'amount' => session('amount')*Helpers::default_currency('xaf'), //hard coded
             'email' => $user_data['email'] ?? EXAMPLE_MAIL,
             'tx_ref' => $reference,
-            'currency' => "xaf",
+            'currency' => "xof",
             'redirect_url' => route('flutterwave_callback'),
             'customer' => [
                 'email' => $user_data['email'] ?? EXAMPLE_MAIL,
