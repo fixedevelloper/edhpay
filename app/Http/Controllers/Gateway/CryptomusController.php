@@ -41,7 +41,7 @@ class CryptomusController
     public function __construct()
     {
         $config = \App\CentralLogics\Helpers::get_business_settings('cryptomus');
-        $this->merchant_uuid = Uuid::uuid4();
+        $this->merchant_uuid = "16ba5351-5cfe-44f0-96b4-4a823caab049";
         $this->payment = Client::payment($config['apikey'], $this->merchant_uuid);
         $payout = Client::payout(env("CRYPTOMUSKEY"), $this->merchant_uuid);
     }
