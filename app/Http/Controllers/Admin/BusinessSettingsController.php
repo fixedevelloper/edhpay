@@ -401,6 +401,16 @@ class BusinessSettingsController extends Controller
                 ])
             ]);
         }
+        else if ($name == 'cryptomus') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'cryptomus'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'apikey' => $request['apikey'],
+                    'url' => $request['wacepay_url'],
+                    //'token' => $request['wacepay_token']
+                ])
+            ]);
+        }
 
         Toastr::success(translate('payment settings updated!'));
         return back();
