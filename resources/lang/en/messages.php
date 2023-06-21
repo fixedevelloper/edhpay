@@ -989,4 +989,6 @@
   'Paydunya' => 'Paydunya',
   'CinetPay' => 'CinetPay',
   'Wace pay' => 'Wace pay',
+  'payci' => 'Payci',
+  'cryptomus' => 'Cryptomus',
 );
