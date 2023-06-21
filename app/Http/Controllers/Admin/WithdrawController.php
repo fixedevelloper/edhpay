@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\CentralLogics\helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\CinetPayController;
+use App\Http\Controllers\Gateway\CryptomusController;
 use App\Http\Controllers\Gateway\PayCiController;
 use App\Http\Controllers\Gateway\PaydunyaController;
 use App\Http\Controllers\Gateway\WacePayController;
@@ -26,9 +27,10 @@ class WithdrawController extends Controller
     private $payCiController;
     private $paydunyaController;
     private $cinetpayController;
+    private $cryptomusContoller;
     private $logger;
 
-    public function __construct(CinetPayController $cinetPayController,PayCiController $payCiController,PaydunyaController $paydunyaController,
+    public function __construct(CryptomusController $cryptomusContoller,CinetPayController $cinetPayController,PayCiController $payCiController,PaydunyaController $paydunyaController,
                                 LoggerInterface $logger,WacePayController $wacePayController,
                                 WithdrawRequest $withdraw_request,
                                 WithdrawalMethod $withdrawal_method, User $user)
@@ -41,6 +43,7 @@ class WithdrawController extends Controller
         $this->payCiController=$payCiController;
         $this->paydunyaController=$paydunyaController;
         $this->cinetpayController=$cinetPayController;
+        $this->cryptomusContoller=$cryptomusContoller;
     }
 
     public function index(Request $request)
@@ -124,6 +127,9 @@ class WithdrawController extends Controller
             }
             if ($request->request_method=="cinetpay"){
                 $res=  $this->cinetpayController->make_transfert($withdraw_request);
+            }
+            if ($request->request_method=="cryptomus"){
+               $this->cryptomusContoller->payment_out($withdraw_request);
             }
             //$this->waceController->sendTransactionOM($withdraw_request,"OM");
 

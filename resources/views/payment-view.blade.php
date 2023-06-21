@@ -79,6 +79,24 @@
                             </div>
                         </div>
                     @endif
+                    @php($config=\App\CentralLogics\Helpers::get_business_settings('cryptomus'))
+                    @if(isset($config) && $config['status'])
+                        <div class="col-md-6 mb-4" style="cursor: pointer">
+                            <div class="card" onclick="$('#ssl-form').submit()">
+                                <div class="card-body" style="height: 70px">
+                                    <form action="{{ url('/cryptomus/make-payment') }}" method="POST" class="needs-validation"
+                                          id="ssl-form">
+                                        <input type="hidden" value="{{ csrf_token() }}" name="_token"/>
+                                        <button class="btn btn-block click-if-alone" type="submit">
+                                            <img width="100"
+                                                 src="{{asset('assets/admin/img/cryptomus.png')}}"/>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     @php($config=\App\CentralLogics\Helpers::get_business_settings('paydunya'))
                     @if(isset($config) && $config['status'])
                         <div class="col-md-6 mb-4" style="cursor: pointer">

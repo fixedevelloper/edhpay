@@ -8,13 +8,16 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.2",
+        "php": "^7.3|^8.1",
         "ext-json": "*",
+        "ext-mysqli": "*",
         "brian2694/laravel-toastr": "^5.56",
+        "cryptomus/api-php-sdk": "^1.0",
         "doctrine/dbal": "^3.3",
         "fruitcake/laravel-cors": "^2.0",
         "gregwar/captcha": "^1.1",
         "guzzlehttp/guzzle": "^7.0.1",
+        "jaggedsoft/php-binance-api": "@dev",
         "kingflamez/laravelrave": "^4.2",
         "laravel/framework": "^8.65",
         "laravel/passport": "^10.2",
@@ -32,8 +35,7 @@
         "stevebauman/location": "^6.5",
         "stripe/stripe-php": "^7.103",
         "twilio/sdk": "^6.31",
-        "unicodeveloper/laravel-paystack": "^1.0",
-        "ext-mysqli": "*"
+        "unicodeveloper/laravel-paystack": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Gateway\CinetPayController;
+use App\Http\Controllers\Gateway\CryptomusController;
 use App\Http\Controllers\Gateway\FlutterwaveController;
 use App\Http\Controllers\Gateway\MercadoPagoController;
 use App\Http\Controllers\Gateway\PayCiController;
@@ -126,12 +127,16 @@ Route::get('/rave/callback', [FlutterwaveController::class, 'callback'])->name('
 //PAYpaydunya
 Route::post('/paydunya/callback', [PaydunyaController::class, 'callback'])->name('paydunya_callback');
 Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::class, 'make_payment'])->name('paydunya_make_payment');
+
 //PayCi
 Route::post('/payci/callback', [PayCiController::class, 'callback'])->name('payci_callback');
 //CinetPay
 Route::match(['get', 'post'],'/cinetpay/callback', [CinetPayController::class, 'callback'])->name('cinetpay_callback');
 Route::match(['get', 'post'],'/cinetpay/make-payment', [CinetPayController::class, 'make_payment'])->name('cinetpay_make_payment');
 Route::match(['get', 'post'],'/cinetpay/return-payment', [CinetPayController::class, 'return_success'])->name('cinetpay_retun_payment');
+//Cryptomus
+Route::post('/cryptomus/callback', [CryptomusController::class, 'callback'])->name('cryptomus_callback');
+Route::match(['get', 'post'],'/cryptomus/make-payment', [CryptomusController::class, 'make_payment'])->name('cryptomus_make_payment');
 
 //Route::get('add-currency', function () {
 //    $currencies = file_get_contents("installation/currency.json");
