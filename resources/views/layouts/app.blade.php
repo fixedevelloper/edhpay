@@ -6,7 +6,7 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <meta name="cryptomus" content="bc6b2810" />
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->

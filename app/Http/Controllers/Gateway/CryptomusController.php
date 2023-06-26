@@ -34,7 +34,7 @@ class CryptomusController
      * @var string
      */
     public $merchant_uuid;
-    CONST KEY="EWtciNg5PJEecINnOwnoiisZ0TC1UcNIjcuxWzPEYolWT81iD7Yg5UctHfgU8YVDvrukzBrOSrUkOt5597BUNDazjfdW1V5Zvx8PM996sYiZLbIU2fhqA2leD5RK1bRG";
+    CONST KEY="0U5BUBQdhH3FSwWkcJdVLeSr0syocqZc09kt2dW8AJJas66qm24AKHB688xT8hl4HT0aMrrb53gVSVjX4WZ3BpfHMcpsHjPEYSPe9SNi8Lt1EZIEnOkcJipy5abrzew1";
     /**
      * CryptomusController constructor.
      */
