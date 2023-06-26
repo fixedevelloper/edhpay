@@ -6,6 +6,7 @@
     <!-- Title -->
     <title>@yield('title')</title>
     <meta name="_token" content="{{csrf_token()}}">
+    <meta name="cryptomus" content="bc6b2810" />
     <!-- Favicon -->
     <link rel="shortcut icon" href="">
     <!-- Font -->
