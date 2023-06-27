@@ -508,7 +508,71 @@ class TransactionController extends Controller
         $withdrawal_methods = $this->withdrawal_method->latest()->get();
         return response()->json(response_formatter(DEFAULT_200, $withdrawal_methods, null), 200);
     }
+    public function withdraw(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pin' => 'required|min:4|max:4',
+            'amount' => 'required|min:0|not_in:0',
+            'note' => 'max:255',
+            'withdrawal_method_id' => 'required',
+            'withdrawal_method_fields' => 'required',
+        ],
+            [
+                'amount.not_in' => translate('Amount must be greater than zero!'),
+            ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        if($request->user()->is_kyc_verified != 1) {
+            return response()->json(['message' => translate('Your account is not verified, Complete your account verification')], 403);
+        }
+
+        //input fields validation check
+        $withdrawal_method = $this->withdrawal_method->find($request->withdrawal_method_id);
+        $fields = array_column($withdrawal_method->method_fields, 'input_name');
+
+        $values = (array)json_decode(base64_decode($request->withdrawal_method_fields))[0];
+
+        foreach ($fields as $field) {
+            if(!key_exists($field, $values)) {
+                return response()->json(response_formatter(DEFAULT_400, $fields, null), 400);
+            }
+        }
+
+        $amount = $request->amount;
+        $charge = helpers::get_withdraw_charge($amount);
+        $total_amount = $amount + $charge;
+
+        /** DB Operations */
+        $withdraw_request = $this->withdraw_request;
+        $withdraw_request->user_id = $request->user()->id;
+        $withdraw_request->amount = $amount;
+        $withdraw_request->admin_charge = $charge;
+        $withdraw_request->request_status = 'pending';
+        $withdraw_request->is_paid = 0;
+        $withdraw_request->sender_note = $request->sender_note;
+        $withdraw_request->withdrawal_method_id = $request->withdrawal_method_id;
+        $withdraw_request->withdrawal_method_fields = $values;
+
+
+        $agent_emoney = EMoney::where('user_id', $request->user()->id)->first();
+        if ($agent_emoney->current_balance < $total_amount) {
+            return response()->json(['message' => translate('Your account do not have enough balance')], 403);
+        }
+
+        $agent_emoney->current_balance -= $total_amount;
+        $agent_emoney->pending_balance += $total_amount;
+
+        DB::transaction(function () use ($withdraw_request, $agent_emoney) {
+            $withdraw_request->save();
+            $agent_emoney->save();
+        });
+
+        return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);
+    }
+/*
     public function withdraw(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -541,16 +605,6 @@ class TransactionController extends Controller
                 return response()->json(response_formatter(DEFAULT_400, $fields, null), 400);
             }
         }
-
-        /*$this->withdraw_request->create([
-            'user_id' => $request->user()->id,
-            'amount' => $request->amount,
-            'request_status' => 'pending',
-            'is_paid' => 0,
-            'sender_note' => $request->note,
-            'withdrawal_method_id' => $request->withdrawal_method_id,
-            'withdrawal_method_fields' => $values,
-        ]);*/
 
         try {
             DB::beginTransaction();
@@ -585,5 +639,5 @@ class TransactionController extends Controller
         }
 
         return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);
-    }
+    }*/
 }

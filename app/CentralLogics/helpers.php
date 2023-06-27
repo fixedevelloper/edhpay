@@ -3,6 +3,7 @@
 namespace App\CentralLogics;
 
 use App\Exceptions\TransactionFailedException;
+use App\Models\Bonus;
 use App\Models\BusinessSetting;
 use App\Models\Currency;
 use App\Models\EMoney;
@@ -405,7 +406,79 @@ class helpers
             return false;
         }
     }
+    public static function get_withdraw_charge($amount): float
+    {
+        $charge = self::get_business_settings('withdraw_charge_percent');
 
+        if ($charge > 0) {
+            return ($amount * $charge)/100;
+        }
+        return $amount;
+    }
+
+    public static function get_add_money_bonus($amount, $user_id, $user_type)
+    {
+        //date, user type, min amount check
+        $bonuses = Bonus::where('is_active', 1)
+            ->whereDate('start_date_time', '<=', now())
+            ->whereDate('end_date_time', '>=', now())
+            ->whereIn('user_type', ['all', $user_type])
+            ->where('min_add_money_amount', '<=', $amount)
+            ->get();
+
+        foreach ($bonuses as $key=>$item) {
+            $used_count = Transaction::where('to_user_id', $user_id)->where('bonus_id', $item->id)->count();
+
+            //limit check
+            if ($used_count >= $item->limit_per_user) {
+                $bonuses->forget($key);
+            }
+        }
+
+        $bonuses = $bonuses->where('min_add_money_amount', $bonuses->max('min_add_money_amount'));
+
+        foreach ($bonuses as $key=>$item) {
+            $item->applied_bonus_amount = $item->bonus_type == 'percentage' ? ($amount*$item->bonus)/100 : $item->bonus;
+
+            //max bonus check
+            if($item->bonus_type == 'percentage' && $item->applied_bonus_amount > $item->max_bonus_amount) {
+                $item->applied_bonus_amount = $item->max_bonus_amount;
+            }
+        }
+
+        return $bonuses->max('applied_bonus_amount') ?? 0;
+    }
+
+    public static function get_applied_add_money_bonus($amount, $user_id, $user_type)
+    {
+        //date, user type, min amount check
+        $bonuses = Bonus::where('is_active', 1)
+            ->whereDate('start_date_time', '<=', now())
+            ->whereDate('end_date_time', '>=', now())
+            ->whereIn('user_type', ['all', $user_type])
+            ->where('min_add_money_amount', '<=', $amount)
+            ->get();
+
+        foreach ($bonuses as $key=>$item) {
+            $item->applied_bonus_amount = $item->bonus_type == 'percentage' ? ($amount*$item->bonus)/100 : $item->bonus;
+
+            //max bonus check
+            if($item->bonus_type == 'percentage' && $item->applied_bonus_amount > $item->max_bonus_amount) {
+                $item->applied_bonus_amount = $item->max_bonus_amount;
+            }
+        }
+
+        $bonuses = $bonuses->where('min_add_money_amount', $bonuses->max('min_add_money_amount'));
+
+        foreach ($bonuses as $key=>$item) {
+            $item->applied_bonus_amount = $item->bonus_type == 'percentage' ? ($amount*$item->bonus)/100 : $item->bonus;
+
+            //max bonus check
+            $item->applied_bonus_amount = ($item->applied_bonus_amount <= $item->max_bonus_amount) ? $item->applied_bonus_amount : $item->max_bonus_amount;
+        }
+
+        return $bonuses->where('applied_bonus_amount', $bonuses->max('applied_bonus_amount'))->first() ?? null;
+    }
     public static function get_qrcode($data)
     {
         $qrcode = QrCode::size(70)->generate(json_encode([
