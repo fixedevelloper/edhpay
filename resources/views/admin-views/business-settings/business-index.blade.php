@@ -553,6 +553,20 @@
                                 <input type="number" name="addmoney_charge_percent" class="form-control" id="addmoney_charge_percent" value="{{$addmoney_charge_percent??1}}" min="0" step=".02" max="100" required>
                             </div>
                         </div>
+                        <div class="col-sm-6 col-xl-3">
+                            @php($withdraw_charge_percent = \App\CentralLogics\helpers::get_business_settings('withdraw_charge_percent'))
+                            <div class="form-group">
+                                <label
+                                    class="input-label text-capitalize d-flex flex-wrap align-items-center column-gap-2">{{translate('withdraw_charge')}}
+                                    <small class="text-danger">( {{translate('percent (%)')}} )</small>
+
+                                    <i class="tio-info cursor-pointer" data-toggle="tooltip" data-placement="top"
+                                       title="{{ translate('The withdraw request sender will be charged the percentage of the withdrawal amount') }}"></i>
+                                </label>
+                                <input type="number" name="withdraw_charge_percent" class="form-control"
+                                       value="{{$withdraw_charge_percent??1}}" min="0" step="any" required>
+                            </div>
+                        </div>
                         <div class="col-md-3 col-12">
                             @php($sendmoney_charge_flat=\App\CentralLogics\helpers::get_business_settings('sendmoney_charge_flat'))
                             <div class="form-group">
