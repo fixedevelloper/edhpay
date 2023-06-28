@@ -56,7 +56,9 @@ class BusinessSettingsController extends Controller
         DB::table('business_settings')->updateOrInsert(['key' => 'sendmoney_charge_flat'], [
             'value' => $request['sendmoney_charge_flat']
         ]);
-
+        DB::table('business_settings')->updateOrInsert(['key' => 'withdraw_charge_percent'], [
+            'value' => $request['withdraw_charge_percent']
+        ]);
         $curr_logo = BusinessSetting::where(['key' => 'logo'])->first() ?? '';
         if ($request->has('logo')) {
             $image_name = Helpers::update('business/', $curr_logo->value ?? '', 'png', $request->file('logo'));

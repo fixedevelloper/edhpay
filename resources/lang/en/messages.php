@@ -991,4 +991,6 @@
   'Wace pay' => 'Wace pay',
   'payci' => 'Payci',
   'cryptomus' => 'Cryptomus',
+  'The withdraw request sender will be charged the percentage of the withdrawal amount' => 'The withdraw request sender will be charged the percentage of the withdrawal amount',
+  'withdraw_charge' => 'Withdraw charge',
 );
