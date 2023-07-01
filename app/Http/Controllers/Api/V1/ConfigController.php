@@ -44,6 +44,7 @@ class ConfigController extends Controller
             'cashout_charge_percent' => (float) Helpers::get_business_settings('cashout_charge_percent'),
             'addmoney_charge_percent' => (float) Helpers::get_business_settings('addmoney_charge_percent'),
             'sendmoney_charge_flat' => (float) Helpers::get_business_settings('sendmoney_charge_flat'),
+            'withdraw_charge_percent' => (float) Helpers::get_business_settings('withdraw_charge_percent'),
             'agent_commission_percent' => (float) Helpers::get_business_settings('agent_commission_percent'),
             'admin_commission' => (float) Helpers::get_business_settings('admin_commission'),
             'two_factor' => (integer) Helpers::get_business_settings('two_factor'),
