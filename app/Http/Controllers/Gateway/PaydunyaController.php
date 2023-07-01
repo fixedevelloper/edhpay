@@ -19,6 +19,7 @@ use KingFlamez\Rave\Facades\Rave as Flutterwave;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use function App\CentralLogics\translate;
+use function Symfony\Component\String\lower;
 
 class PaydunyaController extends Controller
 {
@@ -317,7 +318,7 @@ class PaydunyaController extends Controller
 
     }
     private function getDraw($method){
-        switch ($method){
+        switch (lower($method)){
             case 'moov benin':
                 return 'moov-benin';
             case 'mtn benin':
@@ -338,6 +339,10 @@ class PaydunyaController extends Controller
                 return 't-money-togo';
             case 'orange mali':
                 return 'orange-money-mali';
+/*            case 'orange cameroun':
+                return 'orange-money-cameroun';
+            case 'mtn cameroun':
+                return 'mtn-money-mali';*/
             default:
                 return 'mtn-ci';
         }
