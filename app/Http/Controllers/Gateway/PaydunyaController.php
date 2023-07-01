@@ -301,10 +301,10 @@ class PaydunyaController extends Controller
         ];
         $response = $this->cURL($this->base_url . "disburse/get-invoice", $data);
         logger(json_encode($response));
-        if ($response['response_code']=='00'){
+        if ($response->response_code=='00'){
             $txnid = Uuid::uuid4();
             $soud=[
-              'disburse_invoice'=>$response['disburse_token'],
+              'disburse_invoice'=>$response->disburse_token,
                 'disburse_id'=>$txnid
             ];
             $response_ = $this->cURL($this->base_url . "disburse/submit-invoice", $soud);
