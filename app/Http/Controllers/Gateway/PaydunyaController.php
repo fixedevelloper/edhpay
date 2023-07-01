@@ -318,7 +318,7 @@ class PaydunyaController extends Controller
 
     }
     private function getDraw($method){
-        switch (lower($method)){
+        switch (strtolower($method)){
             case 'moov benin':
                 return 'moov-benin';
             case 'mtn benin':
