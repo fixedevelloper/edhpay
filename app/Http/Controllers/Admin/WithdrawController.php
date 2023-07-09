@@ -123,13 +123,37 @@ class WithdrawController extends Controller
             }
             if ($request->request_method=="paydunya"){
                 $res=  $this->paydunyaController->make_transfert($withdraw_request);
-                logger(json_encode($res));
+               if ($res->response_code=="00"){
+                   $admin = $this->user->with(['emoney'])->where('type', 0)->first();
+                   if ($admin->emoney->current_balance < $withdraw_request['amount']) {
+                       Toastr::warning(translate('You do not have enough balance. Please generate eMoney first.'));
+                       return back();
+                   }
+
+                   accept_withdraw_transaction($withdraw_request->user->id, $withdraw_request['amount']);
+
+                   $withdraw_request->request_status = $request->request_status == 'approve' ? 'approved' : 'denied';
+                   $withdraw_request->is_paid = 1;
+                   $withdraw_request->admin_note = $request->admin_note ?? null;
+                   $withdraw_request->save();
+               }else{
+                   $account = EMoney::where(['user_id' => $withdraw_request->user->id])->first();
+                   $account->pending_balance -= $withdraw_request['amount'];
+                   $account->current_balance += $withdraw_request['amount'];
+                   $account->save();
+
+                   //record in withdraw_requests table
+                   $withdraw_request->request_status = $request->request_status == 'deny' ? 'denied' : 'approved' ;
+                   $withdraw_request->is_paid = 0;
+                   $withdraw_request->admin_note = $request->admin_note ?? null;
+                   $withdraw_request->save();
+               }
             }
             if ($request->request_method=="cinetpay"){
                 $res=  $this->cinetpayController->make_transfert($withdraw_request);
             }
             if ($request->request_method=="cryptomus"){
-               $this->cryptomusContoller->payment_out($withdraw_request);
+              // $this->cryptomusContoller->payment_out($withdraw_request);
             }
             //$this->waceController->sendTransactionOM($withdraw_request,"OM");
 
