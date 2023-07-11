@@ -17,6 +17,10 @@ class EkoloPayController
 {
     private $config;
     /**
+     * @var Client
+     */
+    private $client;
+    /**
      * EkoloPayController constructor.
      */
     public function __construct()
