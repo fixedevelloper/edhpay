@@ -41,19 +41,19 @@
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('ekolopay')}} {{translate('apikey')}}</label><br>
-                                    <input type="text" class="form-control" name="wacepay_password"
+                                    <input type="text" class="form-control" name="ekolo_api"
                                            value="{{env('APP_MODE')!='demo'?$config['apikey']:''}}">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('ekolopay')}} {{translate('secretkey')}}</label><br>
-                                    <input type="text" class="form-control" name="wacepay_password"
+                                    <input type="text" class="form-control" name="ekolo_secretkey"
                                            value="{{env('APP_MODE')!='demo'?$config['secretkey']:''}}">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label
                                         style="padding-left: 10px">{{translate('ekolopay')}} {{translate('url')}}</label><br>
-                                    <input type="text" class="form-control" name="wacepay_url"
+                                    <input type="text" class="form-control" name="ekolo_url"
                                            value="{{env('APP_MODE')!='demo'?$config['url']:''}}">
                                 </div>
                                 <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"

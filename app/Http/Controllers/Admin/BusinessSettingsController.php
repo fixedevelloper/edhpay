@@ -417,9 +417,9 @@ class BusinessSettingsController extends Controller
             DB::table('business_settings')->updateOrInsert(['key' => 'ekolopay'], [
                 'value' => json_encode([
                     'status' => $request['status'],
-                    'apikey' => $request['apikey'],
-                    'secretkey' => $request['secretkey'],
-                    'url' => $request['url'],
+                    'apikey' => $request['ekolo_api'],
+                    'secretkey' => $request['ekolo_secretkey'],
+                    'url' => $request['ekolo_url'],
                 ])
             ]);
         }
