@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Gateway\CinetPayController;
 use App\Http\Controllers\Gateway\CryptomusController;
+use App\Http\Controllers\Gateway\EkoloPayController;
 use App\Http\Controllers\Gateway\FlutterwaveController;
 use App\Http\Controllers\Gateway\MercadoPagoController;
 use App\Http\Controllers\Gateway\PayCiController;
@@ -127,6 +128,10 @@ Route::get('/rave/callback', [FlutterwaveController::class, 'callback'])->name('
 //PAYpaydunya
 Route::post('/paydunya/callback', [PaydunyaController::class, 'callback'])->name('paydunya_callback');
 Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::class, 'make_payment'])->name('paydunya_make_payment');
+
+//PAYpaydunya
+Route::post('/ekolopay/callback', [EkoloPayController::class, 'callback'])->name('ekolopay_callback');
+Route::match(['get', 'post'],'/ekolopay/make-payment', [EkoloPayController::class, 'make_payment'])->name('paydunya_make_payment');
 
 //PayCi
 Route::post('/payci/callback', [PayCiController::class, 'callback'])->name('payci_callback');

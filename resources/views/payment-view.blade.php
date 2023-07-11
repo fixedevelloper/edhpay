@@ -133,7 +133,23 @@
                             </div>
                         </div>
                     @endif
-
+                    @php($config=\App\CentralLogics\Helpers::get_business_settings('ekolopay'))
+                    @if(isset($config) && $config['status'])
+                        <div class="col-md-6 mb-4" style="cursor: pointer">
+                            <div class="card" onclick="$('#ssl-form').submit()">
+                                <div class="card-body" style="height: 70px">
+                                    <form action="{{ url('/ekolopay/make-payment') }}" method="POST" class="needs-validation"
+                                          id="ssl-form">
+                                        <input type="hidden" value="{{ csrf_token() }}" name="_token"/>
+                                        <button class="btn btn-block click-if-alone" type="submit">
+                                            <img width="100"
+                                                 src="https://ekolopay.com/assets/logo.png"/>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     @php($config=\App\CentralLogics\Helpers::get_business_settings('razor_pay'))
                     @if(isset($config) && $config['status'])
                         <div class="col-md-6 mb-4" style="cursor: pointer">

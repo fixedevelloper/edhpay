@@ -22,6 +22,54 @@
             <div class="col-md-6 pb-4">
                 <div class="card">
                     <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{translate('ekolopay')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('ekolopay'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['ekolopay']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label
+                                        class="control-label">{{translate('ekolopay')}} {{translate('payment')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{translate('active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('ekolopay')}} {{translate('apikey')}}</label><br>
+                                    <input type="text" class="form-control" name="wacepay_password"
+                                           value="{{env('APP_MODE')!='demo'?$config['apikey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('ekolopay')}} {{translate('secretkey')}}</label><br>
+                                    <input type="text" class="form-control" name="wacepay_password"
+                                           value="{{env('APP_MODE')!='demo'?$config['secretkey']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{translate('ekolopay')}} {{translate('url')}}</label><br>
+                                    <input type="text" class="form-control" name="wacepay_url"
+                                           value="{{env('APP_MODE')!='demo'?$config['url']:''}}">
+                                </div>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{translate('save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{translate('configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 pb-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
                         <h5 class="text-center">{{translate('cryptomus')}}</h5>
                         @php($config=\App\CentralLogics\Helpers::get_business_settings('cryptomus'))
                         <form

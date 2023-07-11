@@ -413,6 +413,16 @@ class BusinessSettingsController extends Controller
                 ])
             ]);
         }
+        else if ($name == 'ekolopay') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'ekolopay'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'apikey' => $request['apikey'],
+                    'secretkey' => $request['secretkey'],
+                    'url' => $request['url'],
+                ])
+            ]);
+        }
 
         Toastr::success(translate('payment settings updated!'));
         return back();
