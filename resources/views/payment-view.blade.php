@@ -142,8 +142,8 @@
                                           id="ssl-form">
                                         <input type="hidden" value="{{ csrf_token() }}" name="_token"/>
                                         <button class="btn btn-block click-if-alone" type="submit">
-                                            <img width="100"
-                                                 src="https://ekolopay.com/assets/logo.png"/>
+                                            <img width="50"
+                                                 src="https://ekolopay.com/assets/logo.png"/> EKOLOPAY
                                         </button>
                                     </form>
                                 </div>
