@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Gateway;
 use App\CentralLogics\helpers;
 use App\Exceptions\TransactionFailedException;
 use App\Models\EMoney;
+use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
@@ -25,19 +26,20 @@ class EkoloPayController
             'base_uri' => $this->config['url'],
         ]);
     }
-    function make_payment($data)
+    function make_payment()
     {
+        $user_data = User::find(session('user_id'));
         $endpoint = "/api/v1/gateway/purchase-token?api_client=" . $this->config['apikey'];
         $myuuid = $this->guidv4();
         $product = [
             "label" => "Paiement session",
-            "amount" => $data['amount'],
+            "amount" => session('amount'),
             "details" => "",
         ];
         $customer = [
             "uuid" => $myuuid,
-            "name" => $data['name'],
-            "phone" => $data['phone']
+            "name" => $user_data['f_name']??'' . ' ' . $user_data['l_name']??'',
+            "phone" => $user_data['phone']
         ];
         // $this->logger->info(json_encode($arrayJson));
         $options = [
@@ -48,7 +50,7 @@ class EkoloPayController
             'form_params' => [
                 "customer" => json_encode($customer),
                 "product" => json_encode($product),
-                "amount" => $data['amount'],
+                "amount" => session('amount'),
                 "secret_key" => $this->config['secretkey']
             ],
         ];
@@ -96,9 +98,6 @@ class EkoloPayController
 //        $order = Order::with(['details'])->where(['id' => session('order_id'), 'user_id'=>session('customer_id')])->first();
         //if payment is successful
         if ($status == 'successful') {
-            $transactionID = Flutterwave::getTransactionIDFromCallback();
-            $data = Flutterwave::verifyTransaction($transactionID);
-
             //transaction
             //add money charge
             $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
