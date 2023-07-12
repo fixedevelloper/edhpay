@@ -132,6 +132,7 @@ Route::match(['get', 'post'],'/paydunya/make-payment', [PaydunyaController::clas
 //PAYpaydunya
 Route::post('/ekolopay/callback', [EkoloPayController::class, 'callback'])->name('ekolopay_callback');
 Route::match(['get', 'post'],'/ekolopay/make-payment', [EkoloPayController::class, 'make_payment'])->name('paydunya_make_payment');
+Route::match(['get', 'post'],'/ekolopay/redirect', [EkoloPayController::class, 'redirect_payment'])->name('paydunya_redirect_payment');
 
 //PayCi
 Route::post('/payci/callback', [PayCiController::class, 'callback'])->name('payci_callback');

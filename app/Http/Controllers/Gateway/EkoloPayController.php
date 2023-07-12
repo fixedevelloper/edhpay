@@ -11,6 +11,7 @@ use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use KingFlamez\Rave\Facades\Rave as Flutterwave;
 
 class EkoloPayController
@@ -67,6 +68,8 @@ class EkoloPayController
        logger("-------------------------------------------");
         logger($response['API_RESPONSE_CODE']);
         if ($response['API_RESPONSE_CODE'] == 200) {
+            Session::put('purchaseToken',$response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
+           // session('purchaseToken',$response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
           /*  return [
                 'code' => 200,
                 'message' => $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']
@@ -107,6 +110,134 @@ class EkoloPayController
             ]
         ]);*/
      //   return redirect($url);
+    }
+    public function redirect_payment(){
+        logger("-------------------------------------------");
+        logger(session('purchaseToken').'---'.session('amount'));
+        $endpoint = "/api/v1/gateway/check-payment?api_client=" . $this->config['apikey'];
+        $options = [
+            'headers' => [
+                'Accept' => 'application/x-www-form-urlencoded',
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+            'form_params' => [
+                "purchaseToken" => session('purchaseToken'),
+                "secret_key" => $this->config['secretkey']
+            ],
+        ];
+        $res = $this->client->post($endpoint, $options);
+        $valresp = json_decode($res->getBody(), true);
+        $response = $valresp['response'];
+        if ($response['API_RESPONSE_CODE'] == 200 && $response['API_RESPONSE_DATA']['API_DATA']['payment_successful']==true) {
+            //add money charge
+            $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
+            if(isset($add_money_charge) && $add_money_charge > 0) {
+                $add_money_charge = (session('amount') * $add_money_charge)/100;
+            } else {
+                $add_money_charge = 0;
+            }
+
+            //transaction
+            DB::beginTransaction();
+            $data = [];
+            $data['from_user_id'] = Helpers::get_admin_id(); //since admin
+            $data['to_user_id'] = session('user_id');
+
+            try {
+                //customer transaction
+                $data['user_id'] = $data['to_user_id'];
+                $data['type'] = 'credit';
+                $data['transaction_type'] = ADD_MONEY;
+                $data['ref_trans_id'] = null;
+                $data['amount'] = session('amount');
+
+                $customer_transaction = Helpers::make_transaction($data);
+                if ($customer_transaction != null) {
+                    //admin transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'debit';
+                    $data['transaction_type'] = SEND_MONEY;
+                    $data['ref_trans_id'] = $customer_transaction;
+                    $data['amount'] = session('amount') + $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+
+                    //admin charge transaction
+                    $data['user_id'] = $data['from_user_id'];
+                    $data['type'] = 'credit';
+                    $data['transaction_type'] = ADMIN_CHARGE;
+                    $data['ref_trans_id'] = null;
+                    $data['amount'] = $add_money_charge;
+                    $data['charge'] = $add_money_charge;
+                    if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
+                        DB::rollBack();
+                        return \redirect()->route('payment-fail');
+                    }
+                    $admin_transaction_for_charge = Helpers::make_transaction($data);
+                    Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+
+                }
+
+                if ($admin_transaction == null || $admin_transaction_for_charge == null) {
+                    //fund record for failed
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount');
+                        $data['payment_method'] = 'ekolopay';
+                        $data['status'] = 'failed';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::rollBack();
+                    return \redirect()->route('payment-fail');
+
+                } else {
+                    //fund record for success
+                    try {
+                        $data = [];
+                        $data['user_id'] = session('user_id');
+                        $data['amount'] = session('amount');
+                        $data['payment_method'] = 'ekolopay';
+                        $data['status'] = 'success';
+                        Helpers::fund_add($data);
+
+                    } catch (\Exception $exception) {
+                        throw new TransactionFailedException('Fund record failed');
+                    }
+                    DB::commit();
+                    return \redirect()->route('payment-success');
+                }
+
+
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                Toastr::error('Something went wrong!');
+                return back();
+
+            }
+        }else{
+            try {
+                $data = [];
+                $data['user_id'] = session('user_id');
+                $data['amount'] = session('amount');
+                $data['payment_method'] = 'ekolopay';
+                $data['status'] = 'cancel';
+                Helpers::fund_add($data);
+
+            } catch (\Exception $exception) {
+                Toastr::error('Something went wrong!');
+                return back();
+            }
+            return \redirect()->route('payment-fail');
+        }
     }
     public function callback()
     {
@@ -211,8 +342,6 @@ class EkoloPayController
                 return back();
 
             }
-
-
         }
         elseif ($status ==  'FAILED' || $status ==  'REJECTED'){
             //Put desired action/code after transaction has been cancelled here
