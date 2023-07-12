@@ -72,7 +72,9 @@ class EkoloPayController
                 'message' => $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']
             ];*/
 
-            $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
+          //  $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
+            $url = "https://payment.ekolosoutienscolaire.com/api/v1/gateway/purchase-product=" . $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken'];
+            return redirect($url);
         } else {
            /* return [
                 'code' => 0,
