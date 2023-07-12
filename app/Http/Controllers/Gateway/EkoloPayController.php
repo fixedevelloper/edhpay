@@ -43,7 +43,7 @@ class EkoloPayController
         $customer = [
             "uuid" => $myuuid,
             "name" => $user_data['f_name']??'' . ' ' . $user_data['l_name']??'',
-            "phone" => $user_data['phone']
+            "phone" => "064449019"
         ];
         // $this->logger->info(json_encode($arrayJson));
         $options = [
@@ -75,7 +75,7 @@ class EkoloPayController
           //  $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
             $url = "https://payment.ekolosoutienscolaire.com/api/v1/gateway/purchase-product=" . $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken'];
            logger($url);
-            return redirect($url);
+            return redirect($url,['User-AgentUser'=>$url]);
         } else {
            /* return [
                 'code' => 0,
