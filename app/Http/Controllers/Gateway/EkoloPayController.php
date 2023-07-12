@@ -111,6 +111,7 @@ class EkoloPayController
     public function callback()
     {
         $status = request()->status;
+        logger("----------------status----------".$status);
 //        $order = Order::with(['details'])->where(['id' => session('order_id'), 'user_id'=>session('customer_id')])->first();
         //if payment is successful
         if ($status == 'SUCCESSFUL' || $status == 'SUCCESS') {
