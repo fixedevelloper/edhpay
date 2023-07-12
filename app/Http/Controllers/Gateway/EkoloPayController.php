@@ -67,16 +67,20 @@ class EkoloPayController
        logger("-------------------------------------------");
         logger($response['API_RESPONSE_CODE']);
         if ($response['API_RESPONSE_CODE'] == 200) {
-            return [
+          /*  return [
                 'code' => 200,
                 'message' => $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']
-            ];
+            ];*/
+
+            $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
         } else {
-            return [
+           /* return [
                 'code' => 0,
                 'message' => $response['API_RESPONSE_DATA']['clearMessage']
-            ];
+            ];*/
+            return \redirect()->route('payment-fail');
         }
+
     }
 
     function sentUserAgent($purchasetoken)
