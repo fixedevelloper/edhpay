@@ -72,10 +72,10 @@ class EkoloPayController
                 'message' => $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']
             ];*/
 
-          //  $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
-            $url = "https://payment.ekolosoutienscolaire.com/api/v1/gateway/purchase-product=" . $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken'];
-           logger($url);
-            return redirect($url);
+           $this->sentUserAgent($response['API_RESPONSE_DATA']['API_DATA']['purchaseToken']);
+           // $url = "https://payment.ekolosoutienscolaire.com/api/v1/gateway/purchase-product=" . $response['API_RESPONSE_DATA']['API_DATA']['purchaseToken'];
+          // logger($url);
+           // return redirect($url);
         } else {
            /* return [
                 'code' => 0,
@@ -95,19 +95,18 @@ class EkoloPayController
             'http'=>array(
                 'method'=>"GET",
                 'header'=>"Accept-language: en\r\n" .
-                    "Cookie: foo=bar\r\n" .  // check function.stream-context-create on php.net
-                    "User-AgentUser: Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.102011-10-16 20:23:10\r\n" // i.e. An iPad
+                    "User-Agent:".$url // i.e. An iPad
             )
         );
 
-       /* $context = stream_context_create($options);
+       $context = stream_context_create($options);
         $file = file_get_contents($url, false, $context);
-        $res = $this->client->request('GET', $url, [
+      /*   $res = $this->client->request('GET', $url, [
             'headers' => [
                 'User-Agent' => $url,
             ]
         ]);*/
-        return redirect($url);
+     //   return redirect($url);
     }
     public function callback()
     {
