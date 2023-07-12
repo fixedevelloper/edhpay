@@ -43,7 +43,7 @@ class EkoloPayController
         $customer = [
             "uuid" => $myuuid,
             "name" => $user_data['f_name']??'' . ' ' . $user_data['l_name']??'',
-            "phone" => "064449019"
+            "phone" => $user_data['phone']
         ];
         // $this->logger->info(json_encode($arrayJson));
         $options = [
