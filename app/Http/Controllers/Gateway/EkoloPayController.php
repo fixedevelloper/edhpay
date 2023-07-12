@@ -113,7 +113,7 @@ class EkoloPayController
         $status = request()->status;
 //        $order = Order::with(['details'])->where(['id' => session('order_id'), 'user_id'=>session('customer_id')])->first();
         //if payment is successful
-        if ($status == 'successful') {
+        if ($status == 'SUCCESSFUL' || $status == 'SUCCESS') {
             //transaction
             //add money charge
             $add_money_charge = \App\CentralLogics\Helpers::get_business_settings('addmoney_charge_percent');
@@ -212,14 +212,14 @@ class EkoloPayController
 
 
         }
-        elseif ($status ==  'cancelled'){
+        elseif ($status ==  'FAILED' || $status ==  'REJECTED'){
             //Put desired action/code after transaction has been cancelled here
             //fund record for failed
             try {
                 $data = [];
                 $data['user_id'] = session('user_id');
                 $data['amount'] = session('amount');
-                $data['payment_method'] = 'flutterwave';
+                $data['payment_method'] = 'ekolopay';
                 $data['status'] = 'cancel';
                 Helpers::fund_add($data);
 
@@ -235,7 +235,7 @@ class EkoloPayController
                 $data = [];
                 $data['user_id'] = session('user_id');
                 $data['amount'] = session('amount');
-                $data['payment_method'] = 'flutterwave';
+                $data['payment_method'] = 'ekolopay';
                 $data['status'] = 'failed';
                 Helpers::fund_add($data);
 
