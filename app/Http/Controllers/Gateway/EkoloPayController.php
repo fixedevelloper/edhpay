@@ -87,6 +87,7 @@ class EkoloPayController
     {
         $url = "https://payment.ekolosoutienscolaire.com/api/v1/gateway/purchase-product=" . $purchasetoken;
         // $res = $this->client->get($endpoint);
+       // $url = "/purchase-product=" . $purchasetoken;
         $options = array(
             'http'=>array(
                 'method'=>"GET",
@@ -96,9 +97,14 @@ class EkoloPayController
             )
         );
 
-        $context = stream_context_create($options);
+       /* $context = stream_context_create($options);
         $file = file_get_contents($url, false, $context);
-
+        $res = $this->client->request('GET', $url, [
+            'headers' => [
+                'User-Agent' => $url,
+            ]
+        ]);*/
+        return redirect($url);
     }
     public function callback()
     {
