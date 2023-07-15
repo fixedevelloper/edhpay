@@ -12,6 +12,8 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WithdrawalMethod;
 use App\Models\WithdrawRequest;
+use App\Traits\TransactionTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -21,6 +23,8 @@ class TransactionController extends Controller
     private $withdrawal_method;
     private $withdraw_request;
 
+    use TransactionTrait;
+
     public function __construct(WithdrawalMethod $withdrawal_method, WithdrawRequest $withdraw_request)
     {
         $this->withdrawal_method = $withdrawal_method;
@@ -28,7 +32,11 @@ class TransactionController extends Controller
     }
 
 
-    public function send_money(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function send_money(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'pin' => 'required|min:4|max:4',
@@ -45,105 +53,40 @@ class TransactionController extends Controller
 
         $receiver_phone = Helpers::filter_phone($request->phone);
         $user = User::where('phone', $receiver_phone)->first();
-        //Receiver Check
-        if (!isset($user)) {
-            return response()->json(['message' => 'Receiver not found'], 403);
-        }
 
-        //kyc check
-        if($user->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Receiver is not verified'], 403);
-        }
-        if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Complete your account verification'], 403);
-        }
+        /** Transaction validation check */
+        if (!isset($user))
+            return response()->json(['message' => translate('Receiver not found')], 403); //Receiver Check
 
-        //own number transaction check
-        if ($request->user()->phone == $receiver_phone) {
-            return response()->json(['message' => 'Transaction should not with own number'], 400);
-        }
+        if($user->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Receiver is not verified')], 403); //kyc check
 
-        //'if receiver is customer' check
-        if($user->type != 2) {
-            return response()->json(['message' => 'Receiver must be a user'], 400);
-        }
+        if($request->user()->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Complete your account verification')], 403); //kyc check
 
-        //PIN Check
-        if (!Helpers::pin_check($request->user()->id, $request->pin)) {
-            return response()->json(['message' => 'PIN is incorrect'], 403);
-        }
+        if ($request->user()->phone == $receiver_phone)
+            return response()->json(['message' => translate('Transaction should not with own number')], 400); //own number check
+
+        if($user->type != 2)
+            return response()->json(['message' => translate('Receiver must be a user')], 400); //'if receiver is customer' check
+
+        if (!Helpers::pin_check($request->user()->id, $request->pin))
+            return response()->json(['message' => translate('PIN is incorrect')], 403); //PIN Check
 
 
-        //START TRANSACTION
-        DB::beginTransaction();
-        $data = [];
-        $data['from_user_id'] = $request->user()->id;
-        $data['to_user_id'] = Helpers::get_user_id($receiver_phone);
+        /** Transaction */
+        $customer_transaction = $this->customer_send_money_transaction($request->user()->id, Helpers::get_user_id($receiver_phone), $request['amount']);
 
-        try {
-            $sendmoney_charge = Helpers::get_sendmoney_charge();
-            //customer(sender) transaction
-            $data['user_id'] = $data['from_user_id'];
-            $data['type'] = 'debit';
-            $data['transaction_type'] = SEND_MONEY;
-            $data['ref_trans_id'] = null;
-            $data['amount'] = $request->amount + $sendmoney_charge;
+        if (is_null($customer_transaction)) return response()->json(['message' => translate('fail')], 501); //if failed
 
-            if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
-                return response()->json(['message' => 'Insufficient Balance'], 403);
-            }
-
-            $customer_transaction = Helpers::make_transaction($data);
-
-            //send notification
-            Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
-
-            if ($customer_transaction == null) {
-                throw new TransactionFailedException('Transaction from receiver is failed');
-            }
-
-            //customer(receiver) transaction
-            $data['user_id'] = $data['to_user_id'];
-            $data['type'] = 'credit';
-            $data['transaction_type'] = RECEIVED_MONEY;
-            $data['ref_trans_id'] = $customer_transaction;
-            $data['note'] = $request->purpose;
-            $data['amount'] = $request->amount;
-            $agent_transaction = Helpers::make_transaction($data);
-
-            //send notification
-            Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
-
-            if ($agent_transaction == null) {
-                throw new TransactionFailedException('Transaction to sender is failed');
-            }
-
-            //admin transaction (admin_charge)
-            //$data['user_id'] = 1;
-            $data['type'] = 'credit';
-            $data['transaction_type'] = ADMIN_CHARGE;
-            $data['ref_trans_id'] = $customer_transaction;
-            $data['charge'] = $sendmoney_charge;
-            $data['amount'] = $data['charge'];
-            $admin_transaction = Helpers::make_transaction($data);
-            if ($admin_transaction == null) {
-                throw new TransactionFailedException('Admin charge transaction is failed');
-            }
-
-            DB::commit();
-
-        } catch (TransactionFailedException $e) {
-            DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 501);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'transaction_id' => $customer_transaction
-        ], 200);
+        return response()->json(['message' => 'success', 'transaction_id' => $customer_transaction], 200);
     }
 
-    public function cash_out(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function cash_out(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'pin' => 'required|min:4|max:4',
@@ -158,116 +101,41 @@ class TransactionController extends Controller
         }
 
         $receiver_phone = Helpers::filter_phone($request->phone);
-        //logger($receiver_phone);
         $user = User::where('phone', $receiver_phone)->first();
-        //Receiver Check
-        if (!isset($user)) {
-            return response()->json(['message' => 'Receiver not found'], 403);
-        }
 
-        
-        //kyc check
-        if($user->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Receiver is not verified'], 403);
-        }
-        if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Verify your account information'], 403);
-        }
+        /** Transaction validation check */
+        if (!isset($user))
+            return response()->json(['message' => translate('Receiver not found')], 403); //Receiver Check
 
-        //own number transaction check
-        if ($request->user()->phone == $receiver_phone) {
-            return response()->json(['message' => 'Transaction should not with own number'], 400);
-        }
+        if($user->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Receiver is not verified')], 403); //kyc check
 
-        //'if receiver is customer' check
-        if($user->type != 1) {
-            return response()->json(['message' => 'Receiver must be an agent'], 400);
-        }
+        if($request->user()->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Verify your account information')], 403); //kyc check
 
-        //PIN Check
-        if (!Helpers::pin_check($request->user()->id, $request->pin)) {
-            return response()->json(['message' => 'PIN is incorrect'], 403);
-        }
+        if ($request->user()->phone == $receiver_phone)
+            return response()->json(['message' => translate('Transaction should not with own number')], 400); //own number check
 
-        //START TRANSACTION
-        DB::beginTransaction();
-        $data = [];
-        $data['from_user_id'] = $request->user()->id;
-        $data['to_user_id'] = Helpers::get_user_id($receiver_phone);
+        if($user->type != 1)
+            return response()->json(['message' => translate('Receiver must be an agent')], 400); //'if receiver is customer' check
 
-        try {
-            $cashout_charge = Helpers::get_cashout_charge($request->amount);
-            //customer transaction
-            $data['user_id'] = $data['from_user_id'];
-            $data['type'] = 'debit';
-            $data['transaction_type'] = CASH_OUT;
-            $data['ref_trans_id'] = null;
-            $data['amount'] = $request->amount + $cashout_charge;
+        if (!Helpers::pin_check($request->user()->id, $request->pin))
+            return response()->json(['message' => translate('PIN is incorrect')], 403); //PIN Check
 
-            if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
-                return response()->json(['message' => 'Insufficient Balance'], 403);
-            }
 
-            $customer_transaction = Helpers::make_transaction($data);
+        /** Transaction */
+        $customer_transaction = $this->customer_cash_out_transaction($request->user()->id, Helpers::get_user_id($receiver_phone), $request['amount']);
 
-            //send notification
-            Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
+        if (is_null($customer_transaction)) return response()->json(['message' => translate('fail')], 501); //if failed
 
-            if ($customer_transaction == null) {
-                throw new TransactionFailedException('Transaction from receiver is failed');
-            }
-
-            //agent transaction
-            $data['user_id'] = $data['to_user_id'];;
-            $data['type'] = 'credit';
-            $data['transaction_type'] = CASH_IN;
-            $data['ref_trans_id'] = $customer_transaction;
-            $data['charge'] = Helpers::get_agent_commission($cashout_charge);
-
-            //agent transaction for amount
-            $data['amount'] = $request->amount;
-            $data['transaction_type'] = CASH_IN;
-            $agent_transaction_for_amount = Helpers::make_transaction($data);
-
-            //send notification
-            Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
-
-            //agent transaction for commission
-            $data['amount'] = $data['charge'];
-            $data['transaction_type'] = 'agent_commission';
-            $agent_transaction_for_commission = Helpers::make_transaction($data);
-
-            if ($agent_transaction_for_amount == null || $agent_transaction_for_commission == null) {
-                throw new TransactionFailedException('Transaction to sender is failed');
-            }
-
-            //admin transaction (admin_charge)
-            //$data['user_id'] = 1;
-            $data['type'] = 'credit';
-            $data['transaction_type'] = ADMIN_CHARGE;
-            $data['ref_trans_id'] = $customer_transaction;
-            $data['charge'] = $cashout_charge - $data['charge'];
-            $data['amount'] = $data['charge'];
-            $admin_transaction = Helpers::make_transaction($data);
-            if ($admin_transaction == null) {
-                throw new TransactionFailedException('Admin charge transaction is failed');
-            }
-
-            DB::commit();
-
-        } catch (TransactionFailedException $e) {
-            DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 501);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'transaction_id' => $customer_transaction
-        ], 200);
-
+        return response()->json(['message' => 'success', 'transaction_id' => $customer_transaction], 200);
     }
 
-    public function request_money(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function request_money(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required',
@@ -284,41 +152,31 @@ class TransactionController extends Controller
 
         $receiver_phone = Helpers::filter_phone($request->phone);
         $user = User::where('phone', $receiver_phone)->first();
-        //Receiver Check
-        if (!isset($user)) {
-            return response()->json(['message' => 'Receiver not found'], 403);
-        }
 
-        //kyc check
-        if($user->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Receiver is not verified'], 403);
-        }
-        if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Verify your account information'], 403);
-        }
+        /** Transaction validation check */
+        if (!isset($user))
+            return response()->json(['message' => translate('Receiver not found')], 403); //Receiver Check
 
-        //own number transaction check
-        if ($request->user()->phone == $receiver_phone) {
-            return response()->json(['message' => 'Transaction should not with own number'], 400);
-        }
+        if($user->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Receiver is not verified')], 403); //kyc check
 
-        //'if receiver is customer' check
-        if($user->type !=  2) {
-            return response()->json(['message' => 'Receiver must be a user'], 400);
-        }
+        if($request->user()->is_kyc_verified != 1)
+            return response()->json(['message' => translate('Verify your account information')], 403); //kyc check
 
-        try {
-            $request_money = new RequestMoney();
-            $request_money->from_user_id = $request->user()->id;
-            $request_money->to_user_id = Helpers::get_user_id($receiver_phone);
-            $request_money->type = 'pending';
-            $request_money->amount = $request->amount;
-            $request_money->note = $request->note;
-            $request_money->save();
+        if ($request->user()->phone == $receiver_phone)
+            return response()->json(['message' => translate('Transaction should not with own number')], 400); //own number check
 
-        } catch (Exception $e) {
-            return response()->json(['message' => 'failed'], 502);
-        }
+        if($user->type !=  2)
+            return response()->json(['message' => translate('Receiver must be a user')], 400); //'if receiver is customer' check
+
+
+        $request_money = new RequestMoney();
+        $request_money->from_user_id = $request->user()->id;
+        $request_money->to_user_id = Helpers::get_user_id($receiver_phone);
+        $request_money->type = 'pending';
+        $request_money->amount = $request->amount;
+        $request_money->note = $request->note;
+        $request_money->save();
 
         //send notification
         Helpers::send_transaction_notification($request_money->from_user_id, $request->amount, 'request_money');
@@ -327,7 +185,13 @@ class TransactionController extends Controller
         return response()->json(['message' => 'success'], 200);
     }
 
-    public function request_money_status(Request $request, $slug)
+    /**
+     * @param Request $request
+     * @param $slug
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function request_money_status(Request $request, $slug): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'pin' => 'required|min:4|max:4',
@@ -337,121 +201,59 @@ class TransactionController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
+        if (!in_array(strtolower($slug), ['deny', 'approve'])) {
+            return response()->json(['message' => translate('Invalid request')], 403);
+        }
+
         $request_money = RequestMoney::find($request->id);
 
-        //kyc check
-        if(User::find($request_money->to_user_id)->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Receiver is not verified'], 403);
-        }
-        if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Complete your account verification'], 403);
-        }
+        /** Transaction validation check */
+        if (!isset($request_money))
+            return response()->json(['message' => translate('Request not found')], 404);
 
-        //access check
-        if($request_money->to_user_id != $request->user()->id) {
-            return response()->json(['message' => 'unauthorized request'], 403);
-        }
+        if(User::find($request_money->to_user_id)->is_kyc_verified != 1)
+            return response()->json(['message' => 'Receiver is not verified'], 403); //kyc check
 
-        //PIN Check
-        if (!Helpers::pin_check($request->user()->id, $request->pin)) {
-            return response()->json(['message' => 'PIN is incorrect'], 403);
-        }
+        if($request->user()->is_kyc_verified != 1)
+            return response()->json(['message' => 'Complete your account verification'], 403); //kyc check
 
+        if($request_money->to_user_id != $request->user()->id)
+            return response()->json(['message' => 'unauthorized request'], 403); //access check
+
+        if (!Helpers::pin_check($request->user()->id, $request->pin))
+            return response()->json(['message' => 'PIN is incorrect'], 403); //PIN Check
+
+        //if deny
         if (strtolower($slug) == 'deny') {
-            try {
-                $request_money->type = 'denied';
-                $request_money->note = $request->note;
-                $request_money->save();
-            } catch (Exception $e) {
-                return response()->json(['message' => 'failed'], 502);
-            }
+            $request_money->type = 'denied';
+            $request_money->note = $request->note;
+            $request_money->save();
 
             //send notification
-            Helpers::send_transaction_notification($request_money->from_user_id, $request->amount, 'denied_money');
-            Helpers::send_transaction_notification($request_money->to_user_id, $request->amount, 'denied_money');
+            Helpers::send_transaction_notification($request_money->from_user_id, $request_money->amount, 'denied_money');
+            Helpers::send_transaction_notification($request_money->to_user_id, $request_money->amount, 'denied_money');
 
             return response()->json(['message' => 'success'], 200);
-
-        } elseif (strtolower($slug) == 'approve') {
-
-            //START TRANSACTION
-            DB::beginTransaction();
-            $data = [];
-            $data['from_user_id'] = $request_money->to_user_id;     //$data['from_user_id'] ##payment perspective##     //$request_money->to_user_id ##request sending perspective##
-            $data['to_user_id'] = $request_money->from_user_id;
-
-            try {
-                $sendmoney_charge = Helpers::get_sendmoney_charge();
-                //customer(sender) transaction
-                $data['user_id'] = $data['from_user_id'];
-                $data['type'] = 'debit';
-                $data['transaction_type'] = SEND_MONEY;
-                $data['ref_trans_id'] = null;
-                $data['amount'] = $request_money->amount + $sendmoney_charge;
-
-                if (strtolower($data['type']) == 'debit' && EMoney::where('user_id', $data['from_user_id'])->first()->current_balance < $data['amount']) {
-                    return response()->json(['message' => 'Insufficient Balance'], 403);
-                }
-
-                $customer_transaction = Helpers::make_transaction($data);
-
-                //send notification
-                Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
-
-                if ($customer_transaction == null) {
-                    throw new TransactionFailedException('Transaction from sender is failed');
-                }
-
-                //customer(receiver) transaction
-                $data['user_id'] = $data['to_user_id'];
-                $data['type'] = 'credit';
-                $data['transaction_type'] = RECEIVED_MONEY;
-                $data['ref_trans_id'] = $customer_transaction;
-                $data['amount'] = $request_money->amount;
-                $agent_transaction = Helpers::make_transaction($data);
-
-                //send notification
-                Helpers::send_transaction_notification($data['user_id'], $data['amount'], $data['transaction_type']);
-
-                if ($agent_transaction == null) {
-                    throw new TransactionFailedException('Transaction to receiver is failed');
-                }
-
-                //admin transaction (admin_charge)
-                //$data['user_id'] = 1;
-                $data['type'] = 'credit';
-                $data['transaction_type'] = ADMIN_CHARGE;
-                $data['ref_trans_id'] = $customer_transaction;
-                $data['charge'] = $sendmoney_charge;
-                $data['amount'] = $data['charge'];
-                $admin_transaction = Helpers::make_transaction($data);
-                if ($admin_transaction == null) {
-                    throw new TransactionFailedException('Transaction is failed');
-                }
-
-                //request money status update
-                $request_money->type = 'approved';
-                $request_money->save();
-
-                DB::commit();
-
-            } catch (TransactionFailedException $e) {
-                DB::rollBack();
-                return response()->json(['message' => $e->getMessage()], 501);
-            }
-
-            return response()->json([
-                'message' => 'success',
-                'transaction_id' => $customer_transaction
-            ], 200);
-
-        } else {
-            return response()->json(['message' => 'Invalid request'], 403);
         }
 
+        //if approved
+        /** Transaction */
+        $customer_transaction = $this->customer_request_money_transaction($request_money->to_user_id, $request_money->from_user_id, $request_money->amount);
+
+        if (is_null($customer_transaction)) return response()->json(['message' => translate('fail')], 501); //if failed
+
+        //update request money status
+        $request_money->type = 'approved';
+        $request_money->note = $request->note;
+        $request_money->save();
+        return response()->json(['message' => 'success', 'transaction_id' => $customer_transaction], 200); //if success
     }
 
-    public function add_money(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function add_money(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'amount' => 'required'
@@ -461,9 +263,18 @@ class TransactionController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        //kyc check
         if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Verify your account information'], 403);
+            return response()->json(['message' => translate('Verify your account information')], 403); //kyc check
+        }
+
+        //emoney check
+        $amount = $request->amount;
+        $bonus = Helpers::get_add_money_bonus($amount, $request->user()->id, 'customer');
+        $total_amount = $amount + $bonus;
+
+        $admin_emoney = EMoney::where('user_id', Helpers::get_admin_id())->first();
+        if($admin_emoney && $total_amount > $admin_emoney->current_balance) {
+            return response()->json(['message' => translate('The amount is too big. Please contact with admin')], 403);
         }
 
         $user_id = $request->user()->id;
@@ -472,7 +283,11 @@ class TransactionController extends Controller
         return response()->json(['link' => $link], 200);
     }
 
-    public function transaction_history(Request $request)
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function transaction_history(Request $request): array
     {
         $limit = $request->has('limit') ? $request->limit : 10;
         $offset = $request->has('offset') ? $request->offset : 1;
@@ -514,13 +329,21 @@ class TransactionController extends Controller
         ];
     }
 
-    public function withdrawal_methods(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function withdrawal_methods(Request $request): JsonResponse
     {
         $withdrawal_methods = $this->withdrawal_method->latest()->get();
         return response()->json(response_formatter(DEFAULT_200, $withdrawal_methods, null), 200);
     }
 
-    public function withdraw(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function withdraw(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'pin' => 'required|min:4|max:4',
@@ -538,7 +361,7 @@ class TransactionController extends Controller
         }
 
         if($request->user()->is_kyc_verified != 1) {
-            return response()->json(['message' => 'Your account is not verified, Complete your account verification'], 403);
+            return response()->json(['message' => translate('Your account is not verified, Complete your account verification')], 403);
         }
 
         //input fields validation check
@@ -553,48 +376,36 @@ class TransactionController extends Controller
             }
         }
 
-        /*$this->withdraw_request->create([
-            'user_id' => $request->user()->id,
-            'amount' => $request->amount,
-            'request_status' => 'pending',
-            'is_paid' => 0,
-            'sender_note' => $request->note,
-            'withdrawal_method_id' => $request->withdrawal_method_id,
-            'withdrawal_method_fields' => $values,
-        ]);
+        $amount = $request->amount;
+        $charge = helpers::get_withdraw_charge($amount);
+        $total_amount = $amount + $charge;
 
-        return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);*/
-        $amount_sans_charge=Helpers::get_reverse_charge($request->amount);
-        try {
-            DB::beginTransaction();
+        /** DB Operations */
+        $withdraw_request = $this->withdraw_request;
+        $withdraw_request->user_id = $request->user()->id;
+        $withdraw_request->amount = $amount;
+        $withdraw_request->admin_charge = $charge;
+        $withdraw_request->request_status = 'pending';
+        $withdraw_request->is_paid = 0;
+        $withdraw_request->sender_note = $request->sender_note;
+        $withdraw_request->withdrawal_method_id = $request->withdrawal_method_id;
+        $withdraw_request->withdrawal_method_fields = $values;
 
-            $withdraw_request = $this->withdraw_request;
-            $withdraw_request->user_id = $request->user()->id;
-            $withdraw_request->amount = $request->amount;
-            $withdraw_request->request_status = 'pending';
-            $withdraw_request->is_paid = 0;
-            $withdraw_request->sender_note = $request->sender_note;
-            $withdraw_request->withdrawal_method_id = $request->withdrawal_method_id;
-            $withdraw_request->withdrawal_method_fields = $values;
-            $withdraw_request->save();
 
-            $user_emoney = EMoney::where('user_id', $request->user()->id)->first();
-
-            if ($user_emoney->current_balance < $request->amount) {
-                return response()->json(['message' => 'Your account do not have enough balance.'], 403);
-            }
-
-            $user_emoney->current_balance -= $request->amount;
-            $user_emoney->pending_balance += $request->amount;
-            $user_emoney->save();
-
-            DB::commit();
-
-            return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);
-
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['message' => 'Withdraw request failed'], 403);
+        $user_emoney = EMoney::where('user_id', $request->user()->id)->first();
+        if ($user_emoney->current_balance < $total_amount) {
+            return response()->json(['message' => translate('Your account do not have enough balance')], 403);
         }
+
+        $user_emoney->current_balance -= $total_amount;
+        $user_emoney->pending_balance += $total_amount;
+
+        DB::transaction(function () use ($withdraw_request, $user_emoney) {
+            $withdraw_request->save();
+            $user_emoney->save();
+        });
+
+        return response()->json(response_formatter(DEFAULT_STORE_200, null, null), 200);
+        //return response()->json(['message' => translate('Withdraw request failed')], 403); //for failed
     }
 }

@@ -13,6 +13,7 @@ const SEND_MONEY = 'send_money';
 const CASH_IN = 'cash_in';
 const CASH_OUT = 'cash_out';
 const ADMIN_CHARGE = 'admin_charge';
+const AGENT_COMMISSION = 'agent_commission';
 const WITHDRAW = 'withdraw';
 const PAYMENT = 'payment';
 
